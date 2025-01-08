@@ -72,7 +72,7 @@ ursa_compute H2
 ```
 
 
-Many information will be displayed on screen during the G0W0 calculations. Here is the screenshot of some results. The last numbers of list are the correlation energies ($<\psi_{KS}^{HOMO}|\Sigma_c(\omega)|\psi_{KS}^{HOMO}>$) in atomic units calculated by Contour-Deformation method with 20 (cd_N_grid=20) energy grids -- \[cd_Emin_grid=-17.5 eV, cd_Emax_grid=2.5 eV\].
+Many information will be displayed on screen during the G0W0 calculations. Here is the screenshot of some results. The last list of (complex) numbers are the correlation energies ($<\psi_{KS}^{HOMO}|\Sigma_c(\omega)|\psi_{KS}^{HOMO}>$) in atomic units calculated by Contour-Deformation method with 20 (N_grid=20) energy grids -- between \[Emin=-17.5 eV, Emax=2.5 eV\].
 
 ```bash
  Nn -        4824 Ne -        3459
