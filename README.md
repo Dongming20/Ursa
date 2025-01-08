@@ -24,7 +24,7 @@ __2__- Install the [FEAST library](http://www.feast-solver.org/) (BSD License)--
 
 __3__- Install the [Tetgen library](https://wias-berlin.de/software/index.jsp?id=TetGen) (GNU-GPL License)-- install the executable __tetgen__ in your PATH or copy it in the /bin URSA directory.
 
-__4__- Installation of [LibXC library](https://libxc.gitlab.io/) is optional. If installed, it needs to be compiled with the same <f90> and <mpi> options. Without LibXC, only LDA XC functional of DFT is supported. 
+__4__- Installation of [LibXC library](https://libxc.gitlab.io/) is optional. If installed, it needs to be compiled with the same compiler. Without LibXC, only LDA XC functional of DFT is supported. 
 
 __5__- Deﬁne the Shell variable URSAROOT, e.g. export URSAROOT=<URSA directory> or set URSAROOT=<URSA directory> respectively for the BASH or CSH shells.
 One of this command can be placed in the appropriate shell startup ﬁle in $HOME (i.e .bashrc or .cshrc).
