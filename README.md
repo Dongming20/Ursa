@@ -22,7 +22,7 @@ __1__- Install the Intel-MKL library.
 
 __2__- Install the [FEAST library](http://www.feast-solver.org/) (BSD License)--see corresponding installation instructions.
 
-__3__- Install the [Tetgen library](https://wias-berlin.de/software/index.jsp?id=TetGen) (GNU-GPL License)-- install the executable __tetgen__ in your PATH or copy it in the /bin NESSIE directory.
+__3__- Install the [Tetgen library](https://wias-berlin.de/software/index.jsp?id=TetGen) (GNU-GPL License)-- install the executable __tetgen__ in your PATH or copy it in the /bin URSA directory.
 
 __4__- Installation of [LibXC library](https://libxc.gitlab.io/) is optional. If installed, it needs to be compiled with the same <f90> and <mpi> options. Without LibXC, only LDA XC functional of DFT is supported. 
 
