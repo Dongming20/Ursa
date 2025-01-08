@@ -64,7 +64,7 @@ Here:
 
 -__p2__ stands for P2-FEM real-space mesh discretization (p3 is also available for higher accuracy). We note that running G0W0 with p2 provides good enough results for the HOMO energies.
 
-Before executing the DFT simulations, you can edit the file __H2.gw__ and change various options. Many of the these options are self-explanatory (such as p2 vs p3) but many others are expert options. A comprehensive URSA documentation is not yet available. 
+Before executing the G0W0 simulations, you can edit the file __H2.gw__ and change various options. Many of the these options are self-explanatory (such as p2 vs p3) but many others are expert options. A comprehensive URSA documentation is not yet available. 
 
 __3__- After executing the __ursa_configure__ file, the simulation can be run using the following line
 ```bash
