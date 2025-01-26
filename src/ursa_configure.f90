@@ -110,7 +110,7 @@ program ursa_configure
 
     !!!!! DFT
     write(10,*) '&DFT'
-    write(10,*) "xc='pbe'                             !Options: 'lda','pbe'"
+    write(10,*) "xc='lda'                             !Options: 'lda','pbe'"
     write(10,*) "ks_M0="//trim(str1(2*Nstates0+10))//"                              !Estimated number of Eigenvalues"
     write(10,*) "ks_Emin=-50.0d0                      !Minimum of Eigenvalue interval in a.u."
     write(10,*) "ks_Emax=0.05d0                       !Maximum of Eigenvalue interval in a.u."
@@ -137,7 +137,7 @@ program ursa_configure
     write(10,*) "cd_Emax_grid="//trim(str2(2.5d0))//"                    !Energy grid maximum in (eV)"
     write(10,*) "cd_N_grid=20                              "
     write(10,*) "cd_Emid=(-24.5,0.0)                  !Midpoint of the contour in FEAST in (eV)"
-    write(10,*) "cd_r="//trim(str2(-24.5d0+2.5d0))//"                          !Radius of the contour in FEAST in (eV)"
+    write(10,*) "cd_r="//trim(str2(24.5d0+2.5d0))//"                          !Radius of the contour in FEAST in (eV)"
     write(10,*) "cd_M0=3                              !Estimated number of Eigenvalues"
     write(10,*) "cd_igorbital=1                    "
     write(10,*) "cd_fpm1=1                     "
@@ -160,7 +160,7 @@ program ursa_configure
     write(10,*) "casida_Emax_grid2="//trim(str2(2.5d0))//"                !Energy grid maximum in (eV)"
     write(10,*) "casida_N_grid=20                              "
     write(10,*) "casida_Emid=(-24.5,0.0)              !Midpoint of the contour in FEAST in (eV)"
-    write(10,*) "casida_r="//trim(str2(-24.5d0+2.5d0))//"                      !Radius of the contour in FEAST in (eV)"
+    write(10,*) "casida_r="//trim(str2(24.5d0+2.5d0))//"                      !Radius of the contour in FEAST in (eV)"
     write(10,*) "casida_M0=3                          !Estimated number of Eigenvalues"
     write(10,*) "casida_igorbital=1                    "
     write(10,*) "casida_fpm1=1                     "
