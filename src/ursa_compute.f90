@@ -16,6 +16,7 @@ program ursa_compute
     integer, allocatable :: Nquadrature1D,Nquadrature1D_range
     integer, allocatable :: Nmuffin,Nface,Nmuffin_total,Nface_total
     logical, allocatable :: mtest
+    logical :: module_exists,found
 
     double precision,allocatable :: dummy_real,value0
     
@@ -183,6 +184,7 @@ program ursa_compute
     double precision,dimension(:),allocatable :: psi_ks00,psi_gw00,psi_ks01,psi_gw01,psi_ks02,psi_gw02
     integer :: dft00,gw00
 
+    
 
     !!!!!!!!!! dynamic allocation for scalar 
     allocate(dummy,g1,g2,g3,g4,g5,g6,g7,g8,g9,g10,Ne,Nn,Nlocal,Nquadrature,Nbc)
@@ -356,8 +358,6 @@ program ursa_compute
 
 
     call load_gw(name,dgr_fem,meanfield,gw_sigma)
-
-    ! stop
 
 
 
@@ -1149,13 +1149,13 @@ program ursa_compute
     ! stop
 
 
-    ! open(10,file='Ne.1_p2.pxyz',status='replace')
-    open(10,file='He_p2_extendedBC.pxyz',status='replace')
+    ! ! open(10,file='Ne.1_p2.pxyz',status='replace')
+    ! open(10,file='He_p2_extendedBC.pxyz',status='replace')
 
-    do i=1,Nn
-        write(10,*) point(i,:)*bohr
-    enddo
-    close(10)
+    ! do i=1,Nn
+    !     write(10,*) point(i,:)*bohr
+    ! enddo
+    ! close(10)
 
 
     ! stop
@@ -1691,6 +1691,8 @@ enddo
 IA(Nn+1)=neigh_size+1
 
 
+
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!    quaternion     !!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1995,7 +1997,6 @@ do i=1,Nn
     enddo
 enddo
 
-
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!             DIIS SCF loop               !!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2252,125 +2253,141 @@ do while (.true.)
 
     else if (xc0=='pbe') then
 
-            if (it==0) then
+        print *,'PBE functional is not supported yet, LIBXC needs to be installed.'
+        print *,'Please contact the developer for more information.'
 
-            !!!!!!!!!!!!!!!!!!
-            !!!!!! LDA !!!!!!!
-            !!!!!!!!!!!!!!!!!!
+        stop
 
-            !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            !!!!!!  compute_Hartree/Exchange/Correlation Potentials  !!!!!!
-            !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            ! if (it==0) then
 
-            if (it>0) call set_BC(Nn,Nbc,Ne,Nquadrature,Nstates,2.0d0,ks_poisson_bc0,0,0)
+            ! !!!!!!!!!!!!!!!!!!
+            ! !!!!!! LDA !!!!!!!
+            ! !!!!!!!!!!!!!!!!!!
 
-            ! call hartreepotential(Nn,Ne,Nquadrature,Nbc,0)
-            call hartreepotential(Nn,Ne,Nquadrature,Nstates,Nbc,2.0d0,it,0)
+            ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            ! !!!!!!  compute_Hartree/Exchange/Correlation Potentials  !!!!!!
+            ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-            ! call mkl_dcsrmm('N',Ne*Nquadrature,1,Nn,1.0d0,matdescra,NnToNg,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
-            ! ,Vh,Nn,0.0d0,Vh_g,Ne*Nquadrature)
+            ! if (it>0) call set_BC(Nn,Nbc,Ne,Nquadrature,Nstates,2.0d0,ks_poisson_bc0,0,0)
+
+            ! ! call hartreepotential(Nn,Ne,Nquadrature,Nbc,0)
+            ! call hartreepotential(Nn,Ne,Nquadrature,Nstates,Nbc,2.0d0,it,0)
+
+            ! ! call mkl_dcsrmm('N',Ne*Nquadrature,1,Nn,1.0d0,matdescra,NnToNg,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
+            ! ! ,Vh,Nn,0.0d0,Vh_g,Ne*Nquadrature)
 
             
-            call exchangepotential(Nn)
-            call correlationpotential(Nn)
+            ! call exchangepotential(Nn)
+            ! call correlationpotential(Nn)
 
 
-            V_total(1:Nn) = Vh(1:Nn)+Vx(1:Nn)+Vc(1:Nn)!+Vi(1:Nn)
-            ! V_total_g(1:Ne*Nquadrature) = Vh_g(1:Ne*Nquadrature)+Vx_g(1:Ne*Nquadrature)+Vc_g(1:Ne*Nquadrature)
+            ! V_total(1:Nn) = Vh(1:Nn)+Vx(1:Nn)+Vc(1:Nn)!+Vi(1:Nn)
+            ! ! V_total_g(1:Ne*Nquadrature) = Vh_g(1:Ne*Nquadrature)+Vx_g(1:Ne*Nquadrature)+Vc_g(1:Ne*Nquadrature)
 
-            !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            !!!!!!!!!!!!!!!!  construct Hamiltonian  !!!!!!!!!!!!!!!!!!!!!!
-            !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            ! !!!!!!!!!!!!!!!!  construct Hamiltonian  !!!!!!!!!!!!!!!!!!!!!!
+            ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-            if (it>0) then
-                do i=1,Nn
-                    ! do ii=1,neigh_V(i)%size
-                    !     call neigh_V(i)%deleteFirst()
-                    ! enddo
-                    call neigh_V(i)%initializeAB()
-                enddo
-            end if
+            ! if (it>0) then
+            !     do i=1,Nn
+            !         ! do ii=1,neigh_V(i)%size
+            !         !     call neigh_V(i)%deleteFirst()
+            !         ! enddo
+            !         call neigh_V(i)%initializeAB()
+            !     enddo
+            ! end if
             
-            call set_linkedlistV(Ne,Nlocal,Nquadrature,0)
+            ! call set_linkedlistV(Ne,Nlocal,Nquadrature,0)
 
-            ii=0
-            do i=1,Nn
-                do l=1,neigh_V(i)%size
-                    ii=ii+1
-                    xy_V=neigh_V(i)%getab(l)
-                    V(ii)=dble(xy_V(1))
-                enddo
-            enddo
-
-
-            else
-
-            !!!!!!!!!!!!!!!!!!
-            !!!!!! PBE !!!!!!!
-            !!!!!!!!!!!!!!!!!!
-
-            !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            !!!!!!  compute_Hartree/Exchange/Correlation Potentials  !!!!!!
-            !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-            if (it>0) call set_BC(Nn,Nbc,Ne,Nquadrature,Nstates,2.0d0,ks_poisson_bc0,0,0)
-
-            ! call hartreepotential(Nn,Ne,Nquadrature,Nbc,0)
-            call hartreepotential(Nn,Ne,Nquadrature,Nstates,Nbc,2.0d0,it,0)
-
-            V_total(1:Nn) = Vh(1:Nn)!+Vx(1:Nn)+Vc(1:Nn)!+Vi(1:Nn)
-
-            ! call compute_nq_g_gradient(Nn,Ne,Nlocal,Nquadrature,Nstates)
-            call compute_nq_gradient(Nn,Ne,Nlocal,Nstates)
-
-            ! print *, nq_g(1)
-            ! print *, nq_g_gradient(1,:)
-            ! print *, psi_point_g(1,1)
-
-            ! call compute_nq_gradient(Nn,Ne,Nlocal)
-
-            ! call libxc_exchange_g_pbe(Ne,Nquadrature)
-            ! call libxc_correlation_g_pbe(Ne,Nquadrature)
-            call libxc_exchange_pbe(Nn)
-            call libxc_correlation_pbe(Nn)
-            ! call libxc_exchange_pbe(Nn)
-            ! call libxc_correlation_pbe(Nn)
-            ! call libxc_exchange_lda(Ne,Nquadrature)
-            ! call libxc_correlation_lda(Ne,Nquadrature)
+            ! ii=0
+            ! do i=1,Nn
+            !     do l=1,neigh_V(i)%size
+            !         ii=ii+1
+            !         xy_V=neigh_V(i)%getab(l)
+            !         V(ii)=dble(xy_V(1))
+            !     enddo
+            ! enddo
 
 
-            V_total(1:Nn)=V_total(1:Nn)+vx_pbe_n(1:Nn)+vc_pbe_n(1:Nn)
+            ! else
 
-            ! print *,Vh(1),Vx(1),Vc(1)
+            ! !!!!!!!!!!!!!!!!!!
+            ! !!!!!! PBE !!!!!!!
+            ! !!!!!!!!!!!!!!!!!!
 
-            ! exit
+            ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            ! !!!!!!  compute_Hartree/Exchange/Correlation Potentials  !!!!!!
+            ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+            ! if (it>0) call set_BC(Nn,Nbc,Ne,Nquadrature,Nstates,2.0d0,ks_poisson_bc0,0,0)
 
-            !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            !!!!!!!!!!!!!!!!  construct Hamiltonian  !!!!!!!!!!!!!!!!!!!!!!
-            !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            ! ! call hartreepotential(Nn,Ne,Nquadrature,Nbc,0)
+            ! call hartreepotential(Nn,Ne,Nquadrature,Nstates,Nbc,2.0d0,it,0)
 
-            if (it>0) then
-                do i=1,Nn
-                    ! do ii=1,neigh_V(i)%size
-                    !     call neigh_V(i)%deleteFirst()
-                    ! enddo
-                    call neigh_V(i)%initializeAB()
-                enddo
-            end if
+            ! V_total(1:Nn) = Vh(1:Nn)!+Vx(1:Nn)+Vc(1:Nn)!+Vi(1:Nn)
+
+            ! ! inquire(file='xc_f90_lib_m.mod', exist=module_exists)
+
+            ! ! found = check_file_in_path("xc_f90_lib_m.mod")
+
+            ! ! if (found) then
+            !     ! call compute_nq_g_gradient(Nn,Ne,Nlocal,Nquadrature,Nstates)
+            !     call compute_nq_gradient(Nn,Ne,Nlocal,Nstates)
+
+            !     ! print *, nq_g(1)
+            !     ! print *, nq_g_gradient(1,:)
+            !     ! print *, psi_point_g(1,1)
+
+            !     ! call compute_nq_gradient(Nn,Ne,Nlocal)
+
+            !     ! call libxc_exchange_g_pbe(Ne,Nquadrature)
+            !     ! call libxc_correlation_g_pbe(Ne,Nquadrature)
+            !     call libxc_exchange_pbe(Nn)
+            !     call libxc_correlation_pbe(Nn)
+            !     ! call libxc_exchange_pbe(Nn)
+            !     ! call libxc_correlation_pbe(Nn)
+            !     ! call libxc_exchange_lda(Ne,Nquadrature)
+            !     ! call libxc_correlation_lda(Ne,Nquadrature)
+            ! ! else
+            ! !     print *, "LIBXC .mod file does not exist."
+            ! !     stop
+            ! ! end if
+
             
-            call set_linkedlistV(Ne,Nlocal,Nquadrature,2)
 
-            ii=0
-            do i=1,Nn
-                do l=1,neigh_V(i)%size
-                    ii=ii+1
-                    xy_V=neigh_V(i)%getab(l)
-                    V(ii)=dble(xy_V(1))
-                enddo
-            enddo
 
-            end if !!! it>0
+            ! V_total(1:Nn)=V_total(1:Nn)+vx_pbe_n(1:Nn)+vc_pbe_n(1:Nn)
+
+            ! ! print *,Vh(1),Vx(1),Vc(1)
+
+            ! ! exit
+
+
+            ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            ! !!!!!!!!!!!!!!!!  construct Hamiltonian  !!!!!!!!!!!!!!!!!!!!!!
+            ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+            ! if (it>0) then
+            !     do i=1,Nn
+            !         ! do ii=1,neigh_V(i)%size
+            !         !     call neigh_V(i)%deleteFirst()
+            !         ! enddo
+            !         call neigh_V(i)%initializeAB()
+            !     enddo
+            ! end if
+            
+            ! call set_linkedlistV(Ne,Nlocal,Nquadrature,2)
+
+            ! ii=0
+            ! do i=1,Nn
+            !     do l=1,neigh_V(i)%size
+            !         ii=ii+1
+            !         xy_V=neigh_V(i)%getab(l)
+            !         V(ii)=dble(xy_V(1))
+            !     enddo
+            ! enddo
+
+            ! end if !!! it>0
 
     end if !!! LDA/PBE 'if' ends
 
@@ -2381,7 +2398,7 @@ do while (.true.)
 
     ! V=V+V_i
 
-    H=0.5d0*A+V+V_i
+    H=0.5d0*A+V_i+V
 
     ! print *,'toto'
 
@@ -2399,7 +2416,7 @@ do while (.true.)
 
     call dfeast_scsrgv(UPLO, Nn, H, IA, JA, B, IA, JA, fpm, epsout, loop, Emin, Emax, M0, E, psi, M00, res, info)
 
-    ! if ((rank==0).and.(info/=0)) then
+    ! if (info/=0) then
     !     print *,'FEAST_error info --------',info
     !     stop
     ! end if

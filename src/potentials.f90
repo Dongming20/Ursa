@@ -3,7 +3,7 @@ module potentials
     use tools
     use basisfunctions
     use class_linkedlist
-    use xc_f90_lib_m
+    !use xc_f90_lib_m
 
     implicit none
 
@@ -1868,428 +1868,428 @@ module potentials
 
 
 
-      subroutine libxc_exchange_lda(Ne,Nquadrature)
-        integer,intent(in) :: Ne,Nquadrature
-        TYPE(xc_f90_func_t) :: xc_func
-        TYPE(xc_f90_func_info_t) :: xc_info
-        ! TYPE(xc_f90_pointer_t) :: xc_func
-        ! TYPE(xc_f90_pointer_t) :: xc_info
-        integer :: i, vmajor, vminor, vmicro, func_id = 1!!! GGA_LDA_X id is 1
-        ! double precision,dimension(:),allocatable :: sigma
-        ! double precision,dimension(:),allocatable :: vsigma
-        integer(8) :: Ng
+    !   subroutine libxc_exchange_lda(Ne,Nquadrature)
+    !     integer,intent(in) :: Ne,Nquadrature
+    !     TYPE(xc_f90_func_t) :: xc_func
+    !     TYPE(xc_f90_func_info_t) :: xc_info
+    !     ! TYPE(xc_f90_pointer_t) :: xc_func
+    !     ! TYPE(xc_f90_pointer_t) :: xc_info
+    !     integer :: i, vmajor, vminor, vmicro, func_id = 1!!! GGA_LDA_X id is 1
+    !     ! double precision,dimension(:),allocatable :: sigma
+    !     ! double precision,dimension(:),allocatable :: vsigma
+    !     integer(8) :: Ng
 
-        Ng=Ne*Nquadrature
+    !     Ng=Ne*Nquadrature
 
-        vx_g_pbe_n=0.0d0
-        ex_g_pbe=0.0d0
+    !     vx_g_pbe_n=0.0d0
+    !     ex_g_pbe=0.0d0
 
-        ! allocate(vsigma(1:Ne*Nquadrature))
-        ! allocate(sigma(1:Ne*Nquadrature))
-        ! do i=1,Ng
-        ! sigma(i) = nq_g_gradient(i,1)**2+nq_g_gradient(i,2)**2+nq_g_gradient(i,3)**2
-        ! enddo
+    !     ! allocate(vsigma(1:Ne*Nquadrature))
+    !     ! allocate(sigma(1:Ne*Nquadrature))
+    !     ! do i=1,Ng
+    !     ! sigma(i) = nq_g_gradient(i,1)**2+nq_g_gradient(i,2)**2+nq_g_gradient(i,3)**2
+    !     ! enddo
 
-        ! call xc_f90_func_init(xc_func, xc_info, XC_GGA_X_PBE, XC_UNPOLARIZED)
-        ! call xc_f90_func_init(xc_func, XC_GGA_X_PBE, XC_UNPOLARIZED)
-        call xc_f90_func_init(xc_func, func_id, XC_UNPOLARIZED)
-        call xc_f90_lda_vxc(xc_func, Ng, nq_g(1), vx_g_pbe_n(1))
-        call xc_f90_lda_exc(xc_func, Ng, nq_g(1), ex_g_pbe(1))
-        call xc_f90_func_end(xc_func)
+    !     ! call xc_f90_func_init(xc_func, xc_info, XC_GGA_X_PBE, XC_UNPOLARIZED)
+    !     ! call xc_f90_func_init(xc_func, XC_GGA_X_PBE, XC_UNPOLARIZED)
+    !     call xc_f90_func_init(xc_func, func_id, XC_UNPOLARIZED)
+    !     call xc_f90_lda_vxc(xc_func, Ng, nq_g(1), vx_g_pbe_n(1))
+    !     call xc_f90_lda_exc(xc_func, Ng, nq_g(1), ex_g_pbe(1))
+    !     call xc_f90_func_end(xc_func)
 
-        ! vx_g_pbe_n=vx_g_pbe_n*nq_g+ex_g_pbe
+    !     ! vx_g_pbe_n=vx_g_pbe_n*nq_g+ex_g_pbe
 
-        ! do i=1,Ng
-        ! vx_g_pbe_g(i,1) = vsigma(i)*2.0d0*nq_g_gradient(i,1)
-        ! vx_g_pbe_g(i,2) = vsigma(i)*2.0d0*nq_g_gradient(i,2)
-        ! vx_g_pbe_g(i,3) = vsigma(i)*2.0d0*nq_g_gradient(i,3)
-        ! enddo
+    !     ! do i=1,Ng
+    !     ! vx_g_pbe_g(i,1) = vsigma(i)*2.0d0*nq_g_gradient(i,1)
+    !     ! vx_g_pbe_g(i,2) = vsigma(i)*2.0d0*nq_g_gradient(i,2)
+    !     ! vx_g_pbe_g(i,3) = vsigma(i)*2.0d0*nq_g_gradient(i,3)
+    !     ! enddo
 
-        ! deallocate(vsigma)
-        ! deallocate(sigma)
-
-
-      end subroutine libxc_exchange_lda
+    !     ! deallocate(vsigma)
+    !     ! deallocate(sigma)
 
 
-
-      subroutine libxc_correlation_lda(Ne,Nquadrature)
-        integer,intent(in) :: Ne,Nquadrature
-        TYPE(xc_f90_func_t) :: xc_func
-        TYPE(xc_f90_func_info_t) :: xc_info
-        ! TYPE(xc_f90_pointer_t) :: xc_func
-        ! TYPE(xc_f90_pointer_t) :: xc_info
-        integer :: i, vmajor, vminor, vmicro, func_id = 9 !!! GGA_LDA_C id is 9
-        ! double precision,dimension(:),allocatable :: sigma
-        ! double precision,dimension(:),allocatable :: vsigma
-        integer(8) :: Ng
-
-        Ng=Ne*Nquadrature
-
-        vc_g_pbe_n=0.0d0
-        ec_g_pbe=0.0d0
-
-        ! allocate(vsigma(1:Ne*Nquadrature))
-        ! allocate(sigma(1:Ne*Nquadrature))
-        ! do i=1,Ng
-        ! sigma(i) = nq_g_gradient(i,1)**2+nq_g_gradient(i,2)**2+nq_g_gradient(i,3)**2
-        ! enddo
-
-        ! call xc_f90_func_init(xc_func, xc_info, XC_GGA_X_PBE, XC_UNPOLARIZED)
-        ! call xc_f90_func_init(xc_func, XC_GGA_X_PBE, XC_UNPOLARIZED)
-        call xc_f90_func_init(xc_func, func_id, XC_UNPOLARIZED)
-        call xc_f90_lda_vxc(xc_func, Ng, nq_g(1), vc_g_pbe_n(1))
-        call xc_f90_lda_exc(xc_func, Ng, nq_g(1), ec_g_pbe(1))
-        call xc_f90_func_end(xc_func)
-
-        ! vc_g_pbe_n=vc_g_pbe_n*nq_g+ec_g_pbe
-
-        ! do i=1,Ng
-        ! vx_g_pbe_g(i,1) = vsigma(i)*2.0d0*nq_g_gradient(i,1)
-        ! vx_g_pbe_g(i,2) = vsigma(i)*2.0d0*nq_g_gradient(i,2)
-        ! vx_g_pbe_g(i,3) = vsigma(i)*2.0d0*nq_g_gradient(i,3)
-        ! enddo
-
-        ! deallocate(vsigma)
-        ! deallocate(sigma)
+    !   end subroutine libxc_exchange_lda
 
 
-      end subroutine libxc_correlation_lda
+
+    !   subroutine libxc_correlation_lda(Ne,Nquadrature)
+    !     integer,intent(in) :: Ne,Nquadrature
+    !     TYPE(xc_f90_func_t) :: xc_func
+    !     TYPE(xc_f90_func_info_t) :: xc_info
+    !     ! TYPE(xc_f90_pointer_t) :: xc_func
+    !     ! TYPE(xc_f90_pointer_t) :: xc_info
+    !     integer :: i, vmajor, vminor, vmicro, func_id = 9 !!! GGA_LDA_C id is 9
+    !     ! double precision,dimension(:),allocatable :: sigma
+    !     ! double precision,dimension(:),allocatable :: vsigma
+    !     integer(8) :: Ng
+
+    !     Ng=Ne*Nquadrature
+
+    !     vc_g_pbe_n=0.0d0
+    !     ec_g_pbe=0.0d0
+
+    !     ! allocate(vsigma(1:Ne*Nquadrature))
+    !     ! allocate(sigma(1:Ne*Nquadrature))
+    !     ! do i=1,Ng
+    !     ! sigma(i) = nq_g_gradient(i,1)**2+nq_g_gradient(i,2)**2+nq_g_gradient(i,3)**2
+    !     ! enddo
+
+    !     ! call xc_f90_func_init(xc_func, xc_info, XC_GGA_X_PBE, XC_UNPOLARIZED)
+    !     ! call xc_f90_func_init(xc_func, XC_GGA_X_PBE, XC_UNPOLARIZED)
+    !     call xc_f90_func_init(xc_func, func_id, XC_UNPOLARIZED)
+    !     call xc_f90_lda_vxc(xc_func, Ng, nq_g(1), vc_g_pbe_n(1))
+    !     call xc_f90_lda_exc(xc_func, Ng, nq_g(1), ec_g_pbe(1))
+    !     call xc_f90_func_end(xc_func)
+
+    !     ! vc_g_pbe_n=vc_g_pbe_n*nq_g+ec_g_pbe
+
+    !     ! do i=1,Ng
+    !     ! vx_g_pbe_g(i,1) = vsigma(i)*2.0d0*nq_g_gradient(i,1)
+    !     ! vx_g_pbe_g(i,2) = vsigma(i)*2.0d0*nq_g_gradient(i,2)
+    !     ! vx_g_pbe_g(i,3) = vsigma(i)*2.0d0*nq_g_gradient(i,3)
+    !     ! enddo
+
+    !     ! deallocate(vsigma)
+    !     ! deallocate(sigma)
 
 
+    !   end subroutine libxc_correlation_lda
 
 
 
 
-      subroutine libxc_exchange_g_pbe(Ne,Nquadrature)
-        integer,intent(in) :: Ne,Nquadrature
-        TYPE(xc_f90_func_t) :: xc_func
-        TYPE(xc_f90_func_info_t) :: xc_info
-        ! TYPE(xc_f90_pointer_t) :: xc_func
-        ! TYPE(xc_f90_pointer_t) :: xc_info
-        integer :: i, vmajor, vminor, vmicro, func_id = 101 !!! GGA_PBE_X id is 101
-        double precision,dimension(:),allocatable :: sigma
-        double precision,dimension(:),allocatable :: vsigma
-        integer(8) :: Ng
-
-        Ng=Ne*Nquadrature
-
-        allocate(vsigma(1:Ne*Nquadrature))
-        allocate(sigma(1:Ne*Nquadrature))
-        vx_g_pbe_n=0.0d0
-        vsigma=0.0d0
-        ex_g_pbe=0.0d0
-
-        do i=1,Ng
-        sigma(i) = nq_g_gradient(i,1)**2+nq_g_gradient(i,2)**2+nq_g_gradient(i,3)**2
-        enddo
-
-        ! call xc_f90_func_init(xc_func, xc_info, XC_GGA_X_PBE, XC_UNPOLARIZED)
-        ! call xc_f90_func_init(xc_func, XC_GGA_X_PBE, XC_UNPOLARIZED)
-        call xc_f90_func_init(xc_func, func_id, XC_UNPOLARIZED)
-        call xc_f90_gga_vxc(xc_func, Ng, nq_g(1), sigma(1), vx_g_pbe_n(1), vsigma(1))
-        call xc_f90_gga_exc(xc_func, Ng, nq_g(1), sigma(1), ex_g_pbe(1))
-        call xc_f90_func_end(xc_func)
-
-        ! vx_g_pbe_n=vx_g_pbe_n*nq_g+ex_g_pbe
-        ! vx_g_pbe_n=2.0d0*vx_g_pbe_n
 
 
-        do i=1,Ng
-        vx_g_pbe_g(i,1) = vsigma(i)*2.0d0*nq_g_gradient(i,1)!*nq_g(i)!*2.0d0
-        vx_g_pbe_g(i,2) = vsigma(i)*2.0d0*nq_g_gradient(i,2)!*nq_g(i)!*2.0d0
-        vx_g_pbe_g(i,3) = vsigma(i)*2.0d0*nq_g_gradient(i,3)!*nq_g(i)!*2.0d0
-        enddo
+    !   subroutine libxc_exchange_g_pbe(Ne,Nquadrature)
+    !     integer,intent(in) :: Ne,Nquadrature
+    !     TYPE(xc_f90_func_t) :: xc_func
+    !     TYPE(xc_f90_func_info_t) :: xc_info
+    !     ! TYPE(xc_f90_pointer_t) :: xc_func
+    !     ! TYPE(xc_f90_pointer_t) :: xc_info
+    !     integer :: i, vmajor, vminor, vmicro, func_id = 101 !!! GGA_PBE_X id is 101
+    !     double precision,dimension(:),allocatable :: sigma
+    !     double precision,dimension(:),allocatable :: vsigma
+    !     integer(8) :: Ng
 
-        deallocate(vsigma)
-        deallocate(sigma)
+    !     Ng=Ne*Nquadrature
+
+    !     allocate(vsigma(1:Ne*Nquadrature))
+    !     allocate(sigma(1:Ne*Nquadrature))
+    !     vx_g_pbe_n=0.0d0
+    !     vsigma=0.0d0
+    !     ex_g_pbe=0.0d0
+
+    !     do i=1,Ng
+    !     sigma(i) = nq_g_gradient(i,1)**2+nq_g_gradient(i,2)**2+nq_g_gradient(i,3)**2
+    !     enddo
+
+    !     ! call xc_f90_func_init(xc_func, xc_info, XC_GGA_X_PBE, XC_UNPOLARIZED)
+    !     ! call xc_f90_func_init(xc_func, XC_GGA_X_PBE, XC_UNPOLARIZED)
+    !     call xc_f90_func_init(xc_func, func_id, XC_UNPOLARIZED)
+    !     call xc_f90_gga_vxc(xc_func, Ng, nq_g(1), sigma(1), vx_g_pbe_n(1), vsigma(1))
+    !     call xc_f90_gga_exc(xc_func, Ng, nq_g(1), sigma(1), ex_g_pbe(1))
+    !     call xc_f90_func_end(xc_func)
+
+    !     ! vx_g_pbe_n=vx_g_pbe_n*nq_g+ex_g_pbe
+    !     ! vx_g_pbe_n=2.0d0*vx_g_pbe_n
 
 
-      end subroutine libxc_exchange_g_pbe
+    !     do i=1,Ng
+    !     vx_g_pbe_g(i,1) = vsigma(i)*2.0d0*nq_g_gradient(i,1)!*nq_g(i)!*2.0d0
+    !     vx_g_pbe_g(i,2) = vsigma(i)*2.0d0*nq_g_gradient(i,2)!*nq_g(i)!*2.0d0
+    !     vx_g_pbe_g(i,3) = vsigma(i)*2.0d0*nq_g_gradient(i,3)!*nq_g(i)!*2.0d0
+    !     enddo
+
+    !     deallocate(vsigma)
+    !     deallocate(sigma)
+
+
+    !   end subroutine libxc_exchange_g_pbe
 
 
 
-      subroutine libxc_correlation_g_pbe(Ne,Nquadrature)
-        integer,intent(in) :: Ne,Nquadrature
-        TYPE(xc_f90_func_t) :: xc_func
-        TYPE(xc_f90_func_info_t) :: xc_info
-        ! TYPE(xc_f90_pointer_t) :: xc_func
-        ! TYPE(xc_f90_pointer_t) :: xc_info
-        integer :: i, vmajor, vminor, vmicro, func_id = 130 !!! GGA_PBE_C id is 130
-        double precision,dimension(:),allocatable :: sigma
-        double precision,dimension(:),allocatable :: vsigma
-        integer(8) :: Ng
+    !   subroutine libxc_correlation_g_pbe(Ne,Nquadrature)
+    !     integer,intent(in) :: Ne,Nquadrature
+    !     TYPE(xc_f90_func_t) :: xc_func
+    !     TYPE(xc_f90_func_info_t) :: xc_info
+    !     ! TYPE(xc_f90_pointer_t) :: xc_func
+    !     ! TYPE(xc_f90_pointer_t) :: xc_info
+    !     integer :: i, vmajor, vminor, vmicro, func_id = 130 !!! GGA_PBE_C id is 130
+    !     double precision,dimension(:),allocatable :: sigma
+    !     double precision,dimension(:),allocatable :: vsigma
+    !     integer(8) :: Ng
 
-        Ng=Ne*Nquadrature
+    !     Ng=Ne*Nquadrature
 
         
 
-        allocate(vsigma(1:Ne*Nquadrature))
-        allocate(sigma(1:Ne*Nquadrature))
-        vc_g_pbe_n=0.0d0
-        vsigma=0.0d0
-        ec_g_pbe=0.0d0
-        do i=1,Ng
-        sigma(i) = nq_g_gradient(i,1)**2+nq_g_gradient(i,2)**2+nq_g_gradient(i,3)**2
-        enddo
+    !     allocate(vsigma(1:Ne*Nquadrature))
+    !     allocate(sigma(1:Ne*Nquadrature))
+    !     vc_g_pbe_n=0.0d0
+    !     vsigma=0.0d0
+    !     ec_g_pbe=0.0d0
+    !     do i=1,Ng
+    !     sigma(i) = nq_g_gradient(i,1)**2+nq_g_gradient(i,2)**2+nq_g_gradient(i,3)**2
+    !     enddo
     
-        ! call xc_f90_func_init(xc_func, xc_info, XC_GGA_C_PBE, XC_UNPOLARIZED)
-        ! call xc_f90_func_init(xc_func, XC_GGA_C_PBE, XC_UNPOLARIZED)
-        call xc_f90_func_init(xc_func, func_id, XC_UNPOLARIZED)
-        call xc_f90_gga_vxc(xc_func, Ng, nq_g(1), sigma(1), vc_g_pbe_n(1), vsigma(1))
-        call xc_f90_gga_exc(xc_func, Ng, nq_g(1), sigma(1), ec_g_pbe(1))
-        call xc_f90_func_end(xc_func)
+    !     ! call xc_f90_func_init(xc_func, xc_info, XC_GGA_C_PBE, XC_UNPOLARIZED)
+    !     ! call xc_f90_func_init(xc_func, XC_GGA_C_PBE, XC_UNPOLARIZED)
+    !     call xc_f90_func_init(xc_func, func_id, XC_UNPOLARIZED)
+    !     call xc_f90_gga_vxc(xc_func, Ng, nq_g(1), sigma(1), vc_g_pbe_n(1), vsigma(1))
+    !     call xc_f90_gga_exc(xc_func, Ng, nq_g(1), sigma(1), ec_g_pbe(1))
+    !     call xc_f90_func_end(xc_func)
 
-        ! vc_g_pbe_n=vc_g_pbe_n*nq_g+ec_g_pbe
-        ! vc_g_pbe_n=2.0d0*vc_g_pbe_n
-
-
-        do i=1,Ng
-        vc_g_pbe_g(i,1) = vsigma(i)*2.0d0*nq_g_gradient(i,1)!*nq_g(i)!*2.0d0
-        vc_g_pbe_g(i,2) = vsigma(i)*2.0d0*nq_g_gradient(i,2)!*nq_g(i)!*2.0d0
-        vc_g_pbe_g(i,3) = vsigma(i)*2.0d0*nq_g_gradient(i,3)!*nq_g(i)!*2.0d0
-        enddo
-
-        deallocate(vsigma)
-        deallocate(sigma)
+    !     ! vc_g_pbe_n=vc_g_pbe_n*nq_g+ec_g_pbe
+    !     ! vc_g_pbe_n=2.0d0*vc_g_pbe_n
 
 
-      end subroutine libxc_correlation_g_pbe
+    !     do i=1,Ng
+    !     vc_g_pbe_g(i,1) = vsigma(i)*2.0d0*nq_g_gradient(i,1)!*nq_g(i)!*2.0d0
+    !     vc_g_pbe_g(i,2) = vsigma(i)*2.0d0*nq_g_gradient(i,2)!*nq_g(i)!*2.0d0
+    !     vc_g_pbe_g(i,3) = vsigma(i)*2.0d0*nq_g_gradient(i,3)!*nq_g(i)!*2.0d0
+    !     enddo
+
+    !     deallocate(vsigma)
+    !     deallocate(sigma)
+
+
+    !   end subroutine libxc_correlation_g_pbe
 
 
 
 
-      subroutine compute_nq_gradient(Nn,Ne,Nlocal,Nstates)
+    !   subroutine compute_nq_gradient(Nn,Ne,Nlocal,Nstates)
 
-        integer,intent(in) :: Nn,Ne,Nlocal,Nstates
-        integer :: i,m,n,k
-        ! double precision,dimension(:,:),allocatable :: grad
-        double precision,dimension(:), allocatable :: gradient_temp
+    !     integer,intent(in) :: Nn,Ne,Nlocal,Nstates
+    !     integer :: i,m,n,k
+    !     ! double precision,dimension(:,:),allocatable :: grad
+    !     double precision,dimension(:), allocatable :: gradient_temp
 
-        allocate(gradient_temp(1:3))
+    !     allocate(gradient_temp(1:3))
 
-        ! allocate(nq_gradient(1:Nn,1:3))
+    !     ! allocate(nq_gradient(1:Nn,1:3))
 
-        call local_nodes
+    !     call local_nodes
 
-        if (Nlocal==10) then
+    !     if (Nlocal==10) then
 
-        do i=1,Ne
-            call jacobian(ele(i,1),ele(i,2),ele(i,3),ele(i,4))
-            do m=1,Nlocal
-                call basis_p2_del(localpointp2(m,:))
-                nq_gradient(ele(i,m),:)=0.0d0
-                ! do n=1,Nlocal
-                !     do k=1,Nstates
-                !     ! nq_gradient(ele(i,m),:)=nq_gradient(ele(i,m),:)+nq(ele(i,n))*matmul(Jit,grad(m,:))
-                !     nq_gradient(ele(i,m),:)=nq_gradient(ele(i,m),:)+psi(ele(i,n),k)*matmul(Jit,grad(m,:))
-                !     enddo
-                ! enddo
+    !     do i=1,Ne
+    !         call jacobian(ele(i,1),ele(i,2),ele(i,3),ele(i,4))
+    !         do m=1,Nlocal
+    !             call basis_p2_del(localpointp2(m,:))
+    !             nq_gradient(ele(i,m),:)=0.0d0
+    !             ! do n=1,Nlocal
+    !             !     do k=1,Nstates
+    !             !     ! nq_gradient(ele(i,m),:)=nq_gradient(ele(i,m),:)+nq(ele(i,n))*matmul(Jit,grad(m,:))
+    !             !     nq_gradient(ele(i,m),:)=nq_gradient(ele(i,m),:)+psi(ele(i,n),k)*matmul(Jit,grad(m,:))
+    !             !     enddo
+    !             ! enddo
 
-                do k=1,Nstates
-                    gradient_temp=0.0d0
-                do n=1,Nlocal
-                    gradient_temp=gradient_temp+matmul(Jit,phi_p2_del(n,:))*psi(ele(i,n),k)
-                enddo
+    !             do k=1,Nstates
+    !                 gradient_temp=0.0d0
+    !             do n=1,Nlocal
+    !                 gradient_temp=gradient_temp+matmul(Jit,phi_p2_del(n,:))*psi(ele(i,n),k)
+    !             enddo
     
-                nq_gradient(ele(i,m),:)&
-                        =nq_gradient(ele(i,m),:)+4.0d0*psi(ele(i,m),k)*gradient_temp(:)
-                enddo
+    !             nq_gradient(ele(i,m),:)&
+    !                     =nq_gradient(ele(i,m),:)+4.0d0*psi(ele(i,m),k)*gradient_temp(:)
+    !             enddo
 
 
-            enddo
-        enddo
+    !         enddo
+    !     enddo
 
-        else if (Nlocal==20) then
+    !     else if (Nlocal==20) then
 
-            do i=1,Ne
-                call jacobian(ele(i,1),ele(i,2),ele(i,3),ele(i,4))
-                do m=1,Nlocal
-                    call basis_p3_del(localpointp2(m,:))
-                    nq_gradient(ele(i,m),:)=0.0d0
-                    ! do n=1,Nlocal
-                    !     do k=1,Nstates
-                    !     ! nq_gradient(ele(i,m),:)=nq_gradient(ele(i,m),:)+nq(ele(i,n))*matmul(Jit,grad(m,:))
-                    !     nq_gradient(ele(i,m),:)=nq_gradient(ele(i,m),:)+psi(ele(i,n),k)*matmul(Jit,grad(m,:))
-                    !     enddo
-                    ! enddo
+    !         do i=1,Ne
+    !             call jacobian(ele(i,1),ele(i,2),ele(i,3),ele(i,4))
+    !             do m=1,Nlocal
+    !                 call basis_p3_del(localpointp2(m,:))
+    !                 nq_gradient(ele(i,m),:)=0.0d0
+    !                 ! do n=1,Nlocal
+    !                 !     do k=1,Nstates
+    !                 !     ! nq_gradient(ele(i,m),:)=nq_gradient(ele(i,m),:)+nq(ele(i,n))*matmul(Jit,grad(m,:))
+    !                 !     nq_gradient(ele(i,m),:)=nq_gradient(ele(i,m),:)+psi(ele(i,n),k)*matmul(Jit,grad(m,:))
+    !                 !     enddo
+    !                 ! enddo
     
-                    do k=1,Nstates
-                        gradient_temp=0.0d0
-                    do n=1,Nlocal
-                        gradient_temp=gradient_temp+matmul(Jit,phi_p3_del(n,:))*psi(ele(i,n),k)
-                    enddo
+    !                 do k=1,Nstates
+    !                     gradient_temp=0.0d0
+    !                 do n=1,Nlocal
+    !                     gradient_temp=gradient_temp+matmul(Jit,phi_p3_del(n,:))*psi(ele(i,n),k)
+    !                 enddo
         
-                    nq_gradient(ele(i,m),:)&
-                            =nq_gradient(ele(i,m),:)+4.0d0*psi(ele(i,m),k)*gradient_temp(:)
-                    enddo
+    !                 nq_gradient(ele(i,m),:)&
+    !                         =nq_gradient(ele(i,m),:)+4.0d0*psi(ele(i,m),k)*gradient_temp(:)
+    !                 enddo
     
     
-                enddo
-            enddo
+    !             enddo
+    !         enddo
 
-        end if
+    !     end if
 
-        deallocate(gradient_temp)
-
-
-      end subroutine compute_nq_gradient
-
-      subroutine libxc_exchange_pbe(Nn)
-        integer,intent(in) :: Nn
-        TYPE(xc_f90_func_t) :: xc_func
-        TYPE(xc_f90_func_info_t) :: xc_info
-        ! TYPE(xc_f90_pointer_t) :: xc_func
-        ! TYPE(xc_f90_pointer_t) :: xc_info
-        integer :: i, vmajor, vminor, vmicro, func_id = 101 !!! GGA_PBE_X id is 101
-        double precision,dimension(:),allocatable :: sigma
-        double precision,dimension(:),allocatable :: vsigma
-        integer(8) :: Nn0
-
-        Nn0=real(Nn)
-
-        allocate(vsigma(1:Nn))
-        allocate(sigma(1:Nn))
-        vx_pbe_n=0.0d0
-        vsigma=0.0d0
-        ex_pbe=0.0d0
-
-        do i=1,Nn
-        sigma(i) = nq_gradient(i,1)**2+nq_gradient(i,2)**2+nq_gradient(i,3)**2
-        enddo
-
-        ! call xc_f90_func_init(xc_func, xc_info, XC_GGA_X_PBE, XC_UNPOLARIZED)
-        ! call xc_f90_func_init(xc_func, XC_GGA_X_PBE, XC_UNPOLARIZED)
-        call xc_f90_func_init(xc_func, func_id, XC_UNPOLARIZED)
-        call xc_f90_gga_vxc(xc_func, Nn0, nq(1), sigma(1), vx_pbe_n(1), vsigma(1))
-        call xc_f90_gga_exc(xc_func, Nn0, nq(1), sigma(1), ex_pbe(1))
-        call xc_f90_func_end(xc_func)
-
-        ! vx_g_pbe_n=vx_g_pbe_n*nq_g+ex_g_pbe
-        ! vx_g_pbe_n=2.0d0*vx_g_pbe_n
+    !     deallocate(gradient_temp)
 
 
-        do i=1,Nn
-        vx_pbe_g(i,1) = vsigma(i)*2.0d0*nq_gradient(i,1)!*nq_g(i)!*2.0d0
-        vx_pbe_g(i,2) = vsigma(i)*2.0d0*nq_gradient(i,2)!*nq_g(i)!*2.0d0
-        vx_pbe_g(i,3) = vsigma(i)*2.0d0*nq_gradient(i,3)!*nq_g(i)!*2.0d0
-        enddo
+    !   end subroutine compute_nq_gradient
 
-        deallocate(vsigma)
-        deallocate(sigma)
+    !   subroutine libxc_exchange_pbe(Nn)
+    !     integer,intent(in) :: Nn
+    !     TYPE(xc_f90_func_t) :: xc_func
+    !     TYPE(xc_f90_func_info_t) :: xc_info
+    !     ! TYPE(xc_f90_pointer_t) :: xc_func
+    !     ! TYPE(xc_f90_pointer_t) :: xc_info
+    !     integer :: i, vmajor, vminor, vmicro, func_id = 101 !!! GGA_PBE_X id is 101
+    !     double precision,dimension(:),allocatable :: sigma
+    !     double precision,dimension(:),allocatable :: vsigma
+    !     integer(8) :: Nn0
+
+    !     Nn0=real(Nn)
+
+    !     allocate(vsigma(1:Nn))
+    !     allocate(sigma(1:Nn))
+    !     vx_pbe_n=0.0d0
+    !     vsigma=0.0d0
+    !     ex_pbe=0.0d0
+
+    !     do i=1,Nn
+    !     sigma(i) = nq_gradient(i,1)**2+nq_gradient(i,2)**2+nq_gradient(i,3)**2
+    !     enddo
+
+    !     ! call xc_f90_func_init(xc_func, xc_info, XC_GGA_X_PBE, XC_UNPOLARIZED)
+    !     ! call xc_f90_func_init(xc_func, XC_GGA_X_PBE, XC_UNPOLARIZED)
+    !     call xc_f90_func_init(xc_func, func_id, XC_UNPOLARIZED)
+    !     call xc_f90_gga_vxc(xc_func, Nn0, nq(1), sigma(1), vx_pbe_n(1), vsigma(1))
+    !     call xc_f90_gga_exc(xc_func, Nn0, nq(1), sigma(1), ex_pbe(1))
+    !     call xc_f90_func_end(xc_func)
+
+    !     ! vx_g_pbe_n=vx_g_pbe_n*nq_g+ex_g_pbe
+    !     ! vx_g_pbe_n=2.0d0*vx_g_pbe_n
 
 
-      end subroutine libxc_exchange_pbe
+    !     do i=1,Nn
+    !     vx_pbe_g(i,1) = vsigma(i)*2.0d0*nq_gradient(i,1)!*nq_g(i)!*2.0d0
+    !     vx_pbe_g(i,2) = vsigma(i)*2.0d0*nq_gradient(i,2)!*nq_g(i)!*2.0d0
+    !     vx_pbe_g(i,3) = vsigma(i)*2.0d0*nq_gradient(i,3)!*nq_g(i)!*2.0d0
+    !     enddo
+
+    !     deallocate(vsigma)
+    !     deallocate(sigma)
 
 
-      subroutine libxc_correlation_pbe(Nn)
-        integer,intent(in) :: Nn
-        TYPE(xc_f90_func_t) :: xc_func
-        TYPE(xc_f90_func_info_t) :: xc_info
-        ! TYPE(xc_f90_pointer_t) :: xc_func
-        ! TYPE(xc_f90_pointer_t) :: xc_info
-        integer :: i, vmajor, vminor, vmicro, func_id = 130 !!! GGA_PBE_C id is 130
-        double precision,dimension(:),allocatable :: sigma
-        double precision,dimension(:),allocatable :: vsigma
-        integer(8) :: Nn0
+    !   end subroutine libxc_exchange_pbe
 
-        Nn0=real(Nn)
+
+    !   subroutine libxc_correlation_pbe(Nn)
+    !     integer,intent(in) :: Nn
+    !     TYPE(xc_f90_func_t) :: xc_func
+    !     TYPE(xc_f90_func_info_t) :: xc_info
+    !     ! TYPE(xc_f90_pointer_t) :: xc_func
+    !     ! TYPE(xc_f90_pointer_t) :: xc_info
+    !     integer :: i, vmajor, vminor, vmicro, func_id = 130 !!! GGA_PBE_C id is 130
+    !     double precision,dimension(:),allocatable :: sigma
+    !     double precision,dimension(:),allocatable :: vsigma
+    !     integer(8) :: Nn0
+
+    !     Nn0=real(Nn)
 
         
 
-        allocate(vsigma(1:Nn))
-        allocate(sigma(1:Nn))
-        vc_pbe_n=0.0d0
-        vsigma=0.0d0
-        ec_pbe=0.0d0
-        do i=1,Nn
-        sigma(i) = nq_gradient(i,1)**2+nq_gradient(i,2)**2+nq_gradient(i,3)**2
-        enddo
+    !     allocate(vsigma(1:Nn))
+    !     allocate(sigma(1:Nn))
+    !     vc_pbe_n=0.0d0
+    !     vsigma=0.0d0
+    !     ec_pbe=0.0d0
+    !     do i=1,Nn
+    !     sigma(i) = nq_gradient(i,1)**2+nq_gradient(i,2)**2+nq_gradient(i,3)**2
+    !     enddo
     
-        ! call xc_f90_func_init(xc_func, xc_info, XC_GGA_C_PBE, XC_UNPOLARIZED)
-        ! call xc_f90_func_init(xc_func, XC_GGA_C_PBE, XC_UNPOLARIZED)
-        call xc_f90_func_init(xc_func, func_id, XC_UNPOLARIZED)
-        call xc_f90_gga_vxc(xc_func, Nn0, nq(1), sigma(1), vc_pbe_n(1), vsigma(1))
-        call xc_f90_gga_exc(xc_func, Nn0, nq(1), sigma(1), ec_pbe(1))
-        call xc_f90_func_end(xc_func)
+    !     ! call xc_f90_func_init(xc_func, xc_info, XC_GGA_C_PBE, XC_UNPOLARIZED)
+    !     ! call xc_f90_func_init(xc_func, XC_GGA_C_PBE, XC_UNPOLARIZED)
+    !     call xc_f90_func_init(xc_func, func_id, XC_UNPOLARIZED)
+    !     call xc_f90_gga_vxc(xc_func, Nn0, nq(1), sigma(1), vc_pbe_n(1), vsigma(1))
+    !     call xc_f90_gga_exc(xc_func, Nn0, nq(1), sigma(1), ec_pbe(1))
+    !     call xc_f90_func_end(xc_func)
 
-        ! vc_g_pbe_n=vc_g_pbe_n*nq_g+ec_g_pbe
-        ! vc_g_pbe_n=2.0d0*vc_g_pbe_n
-
-
-        do i=1,Nn
-        vc_pbe_g(i,1) = vsigma(i)*2.0d0*nq_gradient(i,1)!*nq_g(i)!*2.0d0
-        vc_pbe_g(i,2) = vsigma(i)*2.0d0*nq_gradient(i,2)!*nq_g(i)!*2.0d0
-        vc_pbe_g(i,3) = vsigma(i)*2.0d0*nq_gradient(i,3)!*nq_g(i)!*2.0d0
-        enddo
-
-        deallocate(vsigma)
-        deallocate(sigma)
+    !     ! vc_g_pbe_n=vc_g_pbe_n*nq_g+ec_g_pbe
+    !     ! vc_g_pbe_n=2.0d0*vc_g_pbe_n
 
 
-      end subroutine libxc_correlation_pbe
+    !     do i=1,Nn
+    !     vc_pbe_g(i,1) = vsigma(i)*2.0d0*nq_gradient(i,1)!*nq_g(i)!*2.0d0
+    !     vc_pbe_g(i,2) = vsigma(i)*2.0d0*nq_gradient(i,2)!*nq_g(i)!*2.0d0
+    !     vc_pbe_g(i,3) = vsigma(i)*2.0d0*nq_gradient(i,3)!*nq_g(i)!*2.0d0
+    !     enddo
+
+    !     deallocate(vsigma)
+    !     deallocate(sigma)
 
 
-
-      subroutine compute_nq_g_gradient(Nn,Ne,Nlocal,Nquadrature,Nstates)
-
-        integer,intent(in) :: Nn,Ne,Nlocal,Nquadrature,Nstates
-        integer :: i,ii,m,k
-        double precision, dimension(:,:),allocatable :: grad_m
-        double precision, dimension(:),allocatable :: basis_function,gradient_temp
-
-        ! allocate(basis_function(1:Nlocal))
-        allocate(gradient_temp(1:3))
-        ! allocate(grad_m(1:Nlocal,1:3))
-
-
-        nq_g_gradient=0.0d0
-
-        ! call mkl_dcsrgemv('N',Nn,NnToNg,NnToNg_IA,NnToNg_JA,nq,nq_g)
+    !   end subroutine libxc_correlation_pbe
 
 
 
-        call gaussian_integral
+    !   subroutine compute_nq_g_gradient(Nn,Ne,Nlocal,Nquadrature,Nstates)
 
-        nq_g=0.0d0
+    !     integer,intent(in) :: Nn,Ne,Nlocal,Nquadrature,Nstates
+    !     integer :: i,ii,m,k
+    !     double precision, dimension(:,:),allocatable :: grad_m
+    !     double precision, dimension(:),allocatable :: basis_function,gradient_temp
 
-        ! print *, nq_g(1)
-        ! print *, nq_g_gradient(1,:)
+    !     ! allocate(basis_function(1:Nlocal))
+    !     allocate(gradient_temp(1:3))
+    !     ! allocate(grad_m(1:Nlocal,1:3))
 
-        do i=1,Ne
 
-            call jacobian(ele(i,1),ele(i,2),ele(i,3),ele(i,4))
+    !     nq_g_gradient=0.0d0
 
-        do ii=1,Nquadrature
+    !     ! call mkl_dcsrgemv('N',Nn,NnToNg,NnToNg_IA,NnToNg_JA,nq,nq_g)
+
+
+
+    !     call gaussian_integral
+
+    !     nq_g=0.0d0
+
+    !     ! print *, nq_g(1)
+    !     ! print *, nq_g_gradient(1,:)
+
+    !     do i=1,Ne
+
+    !         call jacobian(ele(i,1),ele(i,2),ele(i,3),ele(i,4))
+
+    !     do ii=1,Nquadrature
             
-            ! basis_function = basis_p2(gpoint(ii,:))
+    !         ! basis_function = basis_p2(gpoint(ii,:))
 
-            do k=1,Nstates
-            nq_g((i-1)*Nquadrature+ii)=nq_g((i-1)*Nquadrature+ii)+2.0d0*psi_point_g((i-1)*Nquadrature+ii,k)**2
-            enddo
+    !         do k=1,Nstates
+    !         nq_g((i-1)*Nquadrature+ii)=nq_g((i-1)*Nquadrature+ii)+2.0d0*psi_point_g((i-1)*Nquadrature+ii,k)**2
+    !         enddo
 
-            call basis_p2_del(gpoint(ii,:))
+    !         call basis_p2_del(gpoint(ii,:))
 
-            do k=1,Nstates
-                gradient_temp=0.0d0
-            do m=1,Nlocal
-                gradient_temp=gradient_temp+matmul(Jit,phi_p2_del(m,:))*psi(ele(i,m),k)
-            enddo
+    !         do k=1,Nstates
+    !             gradient_temp=0.0d0
+    !         do m=1,Nlocal
+    !             gradient_temp=gradient_temp+matmul(Jit,phi_p2_del(m,:))*psi(ele(i,m),k)
+    !         enddo
 
-            nq_g_gradient((i-1)*Nquadrature+ii,:)&
-                    =nq_g_gradient((i-1)*Nquadrature+ii,:)+4.0d0*psi_point_g((i-1)*Nquadrature+ii,k)*gradient_temp(:)
-            enddo
+    !         nq_g_gradient((i-1)*Nquadrature+ii,:)&
+    !                 =nq_g_gradient((i-1)*Nquadrature+ii,:)+4.0d0*psi_point_g((i-1)*Nquadrature+ii,k)*gradient_temp(:)
+    !         enddo
 
-        enddo
-        enddo
+    !     enddo
+    !     enddo
 
-        ! print *, nq_g(1)
-        ! print *, nq_g_gradient(1,:)
+    !     ! print *, nq_g(1)
+    !     ! print *, nq_g_gradient(1,:)
 
-        deallocate(gradient_temp)
+    !     deallocate(gradient_temp)
 
 
-      end subroutine compute_nq_g_gradient
+    !   end subroutine compute_nq_g_gradient
 
 
 

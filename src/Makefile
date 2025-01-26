@@ -32,6 +32,7 @@ OBJS_configure = tools.o ursa_configure.o
 
 
 
+
 ## for FEAST
 F90FLAGS1 = -L${FEASTROOT}/lib/x64 -lfeast
 
@@ -39,10 +40,10 @@ F90FLAGS1 = -L${FEASTROOT}/lib/x64 -lfeast
 ifeq ($(F90),ifx)
 ## intel MKL
 F90FLAGS2 = -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_intel_lp64.a ${MKLROOT}/lib/intel64/libmkl_intel_thread.a ${MKLROOT}/lib/intel64/libmkl_core.a -Wl,--end-group -liomp5 -lpthread -lm -ldl -I"${MKLROOT}/include"
-F90FLAGS2 += -O3 -qopenmp
+F90FLAGS2 += -O3
 ## Libxc
-F90FLAGS3 = -I${includedir} -O3 -qopenmp
-F90FLAGS4 = -L${libdir} -lxcf90 -lxc
+#F90FLAGS3 = -I${includedir} -O3 -qopenmp
+#F90FLAGS4 = -L${libdir} -lxcf90 -lxc
 #F90FLAGS2 += -g -traceback -check all -check bounds -check uninit -ftrapuv -debug all -gen-interfaces  #-heap-arrays 1
 endif
 
@@ -52,8 +53,8 @@ ifeq ($(F90),gfortran)
 F90FLAGS2 = -m64  -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_gf_lp64.a ${MKLROOT}/lib/intel64/libmkl_gnu_thread.a ${MKLROOT}/lib/intel64/libmkl_core.a -Wl,--end-group -lgomp -lpthread -lm -ldl -m64  -I"${MKLROOT}/include" -fallow-argument-mismatch
 #F90FLAGS2 += -O3 -fopenmp
 ## Libxc
-F90FLAGS3 = -I${includedir2} -fallow-argument-mismatch
-F90FLAGS4 = -L${libdir2} -lxcf90 -lxc
+#F90FLAGS3 = -I${includedir2} -fallow-argument-mismatch
+#F90FLAGS4 = -L${libdir2} -lxcf90 -lxc
 endif
 
 
@@ -61,11 +62,13 @@ endif
 .SUFFIXES: .f90 .o
 .PHONY: clean all
 
+
 %.o: %.f90
-	$(F90) -c $< -o $@ $(F90FLAGS3)
+	$(F90) -c $< -o $@
+
 
 $(NAME_compute) : $(OBJS_compute)
-	$(F90) -o $(NAME_compute) $(OBJS_compute) $(F90FLAGS1) $(F90FLAGS2) $(F90FLAGS4)
+	$(F90) -o $(NAME_compute) $(OBJS_compute) $(F90FLAGS1) $(F90FLAGS2)
 	mv $(NAME_compute) ../bin
 	
 $(NAME_configure) : $(OBJS_configure)
