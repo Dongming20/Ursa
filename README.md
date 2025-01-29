@@ -8,7 +8,7 @@ URSA is an electronic structure code that uses a real-space Finite Element Metho
 
 [2] [FEAST Eigenvalue Solver](http://www.feast-solver.org/)
 
-[3] [Dongming Li and Eric Polizzi, "Nonlinear eigenvalue algorithm for GW quasiparticle equations",in Phys. Rev. B. Vol 111, 045137, 2025](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.111.045137)
+[3] [Dongming Li and Eric Polizzi, "Nonlinear eigenvalue algorithm for GW quasiparticle equations",Phys. Rev. B. Vol 111, 045137, 2025](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.111.045137)
 
 [4] [NESSIE](http://www.nessie-code.org/)
 
