@@ -4,7 +4,7 @@ Release version: 1.0
 
 URSA is an electronic structure code that uses a real-space Finite Element Method (FEM) discretization to perform GW approximation calculations using all-electron ground-state DFT or Hartree-Fock as the starting points. The code is taking advantage of the state-of-the-art FEAST [1,2] as the non-linear eigenvalue solver for the GW quasiparticle equations [3]. URSA is an extension of an 3D FEM legacy code - NESSIE [4]. The real space mesh is generated using the software tetgen [5]. Remark 1: Current atom database is limited to two rows of the periodic table (but it is easy to add more); Only isolated systems (non-periodic) are considered in this release (no bandsructrure calculations). Remark 2: Only graphical solution and Spectral function method of G0W0@DFT and G0W0@HF are included in this current URSA release while G0W0@DFT and G0W0@HF with non-linear eigenvalue solver will be added in the next release.
 
-[1] [Eric Polizzi, "Density-Matrix-Based Algorithms for Solving Eigenvalue Problems",in Phys. Rev. B. Vol. 79, 115112, 2009](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.79.115112)
+[1] [Eric Polizzi, "Density-Matrix-Based Algorithms for Solving Eigenvalue Problems", Phys. Rev. B. Vol. 79, 115112, 2009](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.79.115112)
 
 [2] [FEAST Eigenvalue Solver](http://www.feast-solver.org/)
 
