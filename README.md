@@ -260,7 +260,7 @@ Eigenvectors are all saved in output files. The code is also generating a mesh p
 [BSD](https://opensource.org/licenses/BSD-3-Clause)
 The URSA code is distributed under the BSD software license.
 
-Copyright (c) 2022-2024, The Regents of the University of Massachusetts, Amherst.
+Copyright (c) 2022-2025, The Regents of the University of Massachusetts, Amherst.
 Dongming Li
 All rights reserved.
 
