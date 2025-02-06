@@ -213,15 +213,21 @@ complex(kind=(kind(1.0d0))),dimension(:,:),allocatable :: bwork1_vectemp1_g,bwor
         integer,intent(in) :: Nstates,Nn,Ne,Nquadrature
         ! double precision, dimension(:,:), intent(in) :: psi_temp
         integer :: k
+        double precision, dimension(:,:),allocatable :: A
+
+        allocate(A(size(psi_point_g(:,k)),size(psi(:,k))))
         
         Vhfx_GW(:,:)=0.0d0
         do k=1,Nstates
             ! Vhfx_GW(:,:)=Vhfx_GW(:,:)-outer_product(psi_GW_g(:,k),psi_GW(:,k))
-            Vhfx_GW(:,:)=Vhfx_GW(:,:)-outer_product(psi_point_g(:,k),psi(:,k))
+            call outer_product('ge',psi_point_g(:,k),psi(:,k),A)
+            Vhfx_GW(:,:)=Vhfx_GW(:,:)-A
             ! Vhfx_GW(1:Ne*Nquadrature,1:Nn)=Vhfx_GW(1:Ne*Nquadrature,1:Nn)-outer_product(psi_point_g(1:Ne*Nquadrature,k),psi(1:Nn,k))
         enddo
 
         Vhfx_GW=Vhfx_GW*v_kernel
+
+        deallocate(A)
 
     end subroutine construct_exchangekernel
 
@@ -230,10 +236,11 @@ complex(kind=(kind(1.0d0))),dimension(:,:),allocatable :: bwork1_vectemp1_g,bwor
 
         integer,intent(in) :: Nn,Ne,Nquadrature,Nstates
 
-        double precision,dimension(:,:), allocatable :: NNmatrix_temp02
+        double precision,dimension(:,:), allocatable :: NNmatrix_temp02,NNmatrix_temp03
 
         allocate(Vhfx_GW(Ne*Nquadrature,Nn))
         allocate(NNmatrix_temp02(Nn,Nn))
+        allocate(NNmatrix_temp03(Nn,Nn))
 
         call construct_exchangekernel(Nstates,Nn,Ne,Nquadrature)
 
@@ -241,15 +248,16 @@ complex(kind=(kind(1.0d0))),dimension(:,:),allocatable :: bwork1_vectemp1_g,bwor
         call mkl_dcsrmm('T',Ne*Nquadrature,Nn,Nn,1.0d0,matdescra,NnToNg,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
                                                     ,Vhfx_GW,Ne*Nquadrature,0.0d0,NNmatrix_temp02,Nn)
 
-        NNmatrix_temp02=transpose(NNmatrix_temp02)
+        NNmatrix_temp03=transpose(NNmatrix_temp02)
 
-        call mkl_dcsrmm('N',Nn,Nn,Nn,1.0d0,matdescrb,B,JA,IA_pntrb,IA_pntre,NNmatrix_temp02,Nn,0.0d0,Vhfx_final_GW,Nn)
+        call mkl_dcsrmm('N',Nn,Nn,Nn,1.0d0,matdescrb,B,JA,IA_pntrb,IA_pntre,NNmatrix_temp03,Nn,0.0d0,Vhfx_final_GW,Nn)
 
-
-        Vhfx_final_GW=(Vhfx_final_GW+transpose(Vhfx_final_GW))/2.0d0
+        NNmatrix_temp02=transpose(Vhfx_final_GW)
+        Vhfx_final_GW=(Vhfx_final_GW+NNmatrix_temp02)/2.0d0
 
         deallocate(Vhfx_GW)
         deallocate(NNmatrix_temp02)
+        deallocate(NNmatrix_temp03)
 
 
     end subroutine construct_exchangematrix
@@ -307,7 +315,7 @@ complex(kind=(kind(1.0d0))),dimension(:,:),allocatable :: bwork1_vectemp1_g,bwor
 
         complex(kind=(kind(1.0d0))),dimension(:,:),allocatable :: matrix_temp,znnmatrix,G
         double precision,dimension(:,:),allocatable :: matrix_temp2,dnnmatrix,dnnmatrix2,psi_ia
-        double precision,dimension(:,:),allocatable :: NgNntemp,NgNgtemp,NnNgtemp,NnNgtemp2
+        double precision,dimension(:,:),allocatable :: NgNntemp,NgNgtemp,NgNgtemp2,NnNgtemp,NnNgtemp2
         complex(kind=(kind(1.0d0))),dimension(:),allocatable :: lapack_work
 
 
@@ -423,8 +431,8 @@ call PARDISO(pt_v,MAXFCT,MNUM,MTYPE,PHASE,Nn,psaz_dft(1),uisa,ujsa,idum,Nn,IPARM
 
         ! NnNgtemp2=NnNgtemp2+NnNgtemp
                                     
-
-                    dnnmatrix=dnnmatrix+dble(4.0d0*G*outer_product(psi(:,k),psi(:,k)))
+                    call outer_product('ge',psi(:,k),psi(:,k),dnnmatrix2)
+                    dnnmatrix=dnnmatrix+4.0d0*dble(G)*dnnmatrix2!outer_product(psi(:,k),psi(:,k))
                     ! znnmatrix=znnmatrix+2.0d0*matrix_temp*outer_product(psi(:,k),psi(:,k))
                 
                 enddo
@@ -520,6 +528,7 @@ call PARDISO(pt_v,MAXFCT,MNUM,MTYPE,PHASE,Nn,psaz_dft(1),uisa,ujsa,idum,Nn,IPARM
 
         allocate(NgNntemp(Ne*Nquadrature,Nn))
         allocate(NgNgtemp(Ne*Nquadrature,Ne*Nquadrature))
+        allocate(NgNgtemp2(Ne*Nquadrature,Ne*Nquadrature))
         allocate(NnNgtemp(Nn,Ne*Nquadrature))
         allocate(NnNgtemp2(Nn,Ne*Nquadrature))
 
@@ -546,7 +555,8 @@ call PARDISO(pt_v,MAXFCT,MNUM,MTYPE,PHASE,Nn,psaz_dft(1),uisa,ujsa,idum,Nn,IPARM
             call mkl_dcsrmm('N',Ne*Nquadrature,Ne*Nquadrature,Nn,1.0d0,matdescra,NnToNg,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
                                                 ,transpose(NgNntemp),Nn,0.0d0,NgNgtemp,Ne*Nquadrature)
 
-            NgNgtemp=NgNgtemp*outer_product(psi_point_g(:,k)*volumegweight(:),psi_point_g(:,k))
+            call outer_product('ge',psi_point_g(:,k)*volumegweight(:),psi_point_g(:,k),NgNgtemp2)
+            NgNgtemp=NgNgtemp*NgNgtemp2!outer_product(psi_point_g(:,k)*volumegweight(:),psi_point_g(:,k))
 
             call mkl_dcsrmm('T',Ne*Nquadrature,Ne*Nquadrature,Nn,4.0d0,matdescra,NnToNg,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
                                                 ,NgNgtemp,Ne*Nquadrature,0.0d0,NnNgtemp,Nn)
@@ -579,6 +589,7 @@ call PARDISO(pt_v,MAXFCT,MNUM,MTYPE,PHASE,Nn,psaz_dft(1),uisa,ujsa,idum,Nn,IPARM
 
         deallocate(NgNntemp)
         deallocate(NgNgtemp)
+        deallocate(NgNgtemp2)
         deallocate(NnNgtemp)
         deallocate(NnNgtemp2)
         deallocate(matrix_temp2)
@@ -757,8 +768,8 @@ call PARDISO(pt_v,MAXFCT,MNUM,MTYPE,PHASE,Nn,psaz_dft(1),uisa,ujsa,idum,Nn,IPARM
                     call zsytrs('U',Nn,Nn,matrix_temp,Nn,lapack_IPIV,G,Nn,lapack_INFO)
 
                                     
-
-                    dnnmatrix=dnnmatrix+4.0d0*dble(G)*outer_product(psi(:,k),psi(:,k))
+                    call outer_product('ge',psi(:,k),psi(:,k),dnnmatrix2)
+                    dnnmatrix=dnnmatrix+4.0d0*dble(G)*dnnmatrix2!outer_product(psi(:,k),psi(:,k))
                 
                 enddo
     
@@ -888,6 +899,11 @@ call PARDISO(pt_v,MAXFCT,MNUM,MTYPE,PHASE,Nn,psaz_dft(1),uisa,ujsa,idum,Nn,IPARM
                 ! psaz_dft(1:nnza)=(Ze+omega(i,ii))*usb(1:nnza)-usa_dft(1:nnza)
 call PARDISO(pt_v,MAXFCT,MNUM,MTYPE,PHASE,Nn,psaz_dft(1),uisa,ujsa,idum,Nn,IPARM_V,MSGLVL,IdentityMatrix,G,pardiso_info)
 
+! print *,G(1,1)
+! print *,G(1,2)
+! print *,G(2,1)
+! print *,G(2,2)
+
 
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         !!!!!!!!!!!!!!!!    Approximated integral without Hadamard product    !!!!!!!!!!!!!!!!
@@ -958,7 +974,7 @@ call PARDISO(pt_v,MAXFCT,MNUM,MTYPE,PHASE,Nn,psaz_dft(1),uisa,ujsa,idum,Nn,IPARM
             do i=1,Nquadrature1D
 
     
-        psaz_dft(1:nnza)=(Ze+omega(i,ii)*j_imag)*usb(1:nnza)-usa_dft(1:nnza)
+        psaz_dft(1:nnza)=(dble(Ze)+omega(i,ii)*j_imag)*usb(1:nnza)-usa_dft(1:nnza)
                 ! psaz_dft(1:nnza)=(Ze+omega(i,ii))*usb(1:nnza)-usa_dft(1:nnza)
 call PARDISO(pt_v,MAXFCT,MNUM,MTYPE,PHASE,Nn,psaz_dft(1),uisa,ujsa,idum,Nn,IPARM_V,MSGLVL,IdentityMatrix,G,pardiso_info)
 
@@ -1716,7 +1732,7 @@ gw_Sigma_g=gw_Sigma_g-1.0d0/2.0d0/pi*zNgNgtemp*zNgNgtemp2*gweight_1D(i)*(Xi_max(
             
         
         
-            end subroutine compute_gw_Sigma_CD_imagintegral_2
+        end subroutine compute_gw_Sigma_CD_imagintegral_2
 
 
 
@@ -1746,6 +1762,7 @@ gw_Sigma_g=gw_Sigma_g-1.0d0/2.0d0/pi*zNgNgtemp*zNgNgtemp2*gweight_1D(i)*(Xi_max(
 
             complex(kind=(kind(1.0d0))),dimension(:,:),allocatable :: NNmatrix_temp005,NNmatrix_temp006,NNmatrix_temp
             complex(kind=(kind(1.0d0))),dimension(:,:),allocatable :: zNnNgtemp2,zNgNntemp,zNgNgtemp,zNnNgtemp
+            double precision,dimension(:,:),allocatable :: NgNgtemp
 
 
             
@@ -1775,6 +1792,7 @@ gw_Sigma_g=gw_Sigma_g-1.0d0/2.0d0/pi*zNgNgtemp*zNgNgtemp2*gweight_1D(i)*(Xi_max(
 
             allocate(matrix_temp0(Nn,Nn))
             allocate(matrix_temp1(Nn,Nn))
+            allocate(matrix_temp2(Nn,Nn))
             allocate(G(Nn,Nn))
 
     
@@ -1817,8 +1835,8 @@ gw_Sigma_g=gw_Sigma_g-1.0d0/2.0d0/pi*zNgNgtemp*zNgNgtemp2*gweight_1D(i)*(Xi_max(
                         matrix_temp1=matrix_temp1+dble(G)
 
 
-
-                        matrix_temp0=matrix_temp0+2.0d0*matrix_temp1*outer_product(psi(:,k),psi(:,k))
+                        call outer_product('ge',psi(:,k),psi(:,k),matrix_temp2)
+                        matrix_temp0=matrix_temp0+2.0d0*matrix_temp1*matrix_temp2!outer_product(psi(:,k),psi(:,k))
 
 
 
@@ -1849,8 +1867,8 @@ gw_Sigma_g=gw_Sigma_g-1.0d0/2.0d0/pi*zNgNgtemp*zNgNgtemp2*gweight_1D(i)*(Xi_max(
             call PARDISO(pt_v,MAXFCT,MNUM,MTYPE,PHASE,Nn,usb(1:nnza)*j_real,uisa,ujsa,idum,Nn,IPARM_V,MSGLVL,matrix_temp0*j_real&
                 ,G,pardiso_info)  !!!!! G here is meaningless, only for a temp complex matrix
 
-
-                gw_Sigma_complex_poles=gw_Sigma_complex_poles-G*outer_product(psi(:,i),psi(:,i))
+                call outer_product('ge',psi(:,i),psi(:,i),matrix_temp2)
+                gw_Sigma_complex_poles=gw_Sigma_complex_poles-G*matrix_temp2!outer_product(psi(:,i),psi(:,i))
 
 
 
@@ -1884,8 +1902,8 @@ gw_Sigma_g=gw_Sigma_g-1.0d0/2.0d0/pi*zNgNgtemp*zNgNgtemp2*gweight_1D(i)*(Xi_max(
                         matrix_temp1=matrix_temp1+dble(G)
 
 
-
-                        matrix_temp0=matrix_temp0+2.0d0*matrix_temp1*outer_product(psi(:,k),psi(:,k))
+                        call outer_product('ge',psi(:,k),psi(:,k),matrix_temp2)
+                        matrix_temp0=matrix_temp0+2.0d0*matrix_temp1*matrix_temp2!outer_product(psi(:,k),psi(:,k))
 
 
 
@@ -1916,8 +1934,8 @@ gw_Sigma_g=gw_Sigma_g-1.0d0/2.0d0/pi*zNgNgtemp*zNgNgtemp2*gweight_1D(i)*(Xi_max(
             call PARDISO(pt_v,MAXFCT,MNUM,MTYPE,PHASE,Nn,usb(1:nnza)*j_real,uisa,ujsa,idum,Nn,IPARM_V,MSGLVL,matrix_temp0*j_real&
                 ,G,pardiso_info)  !!!!! G here is meaningless, only for a temp matrix
 
-
-                gw_Sigma_complex_poles=gw_Sigma_complex_poles+G*outer_product(psi(:,i),psi(:,i))
+                call outer_product('ge',psi(:,i),psi(:,i),matrix_temp2)
+                gw_Sigma_complex_poles=gw_Sigma_complex_poles+G*matrix_temp2!outer_product(psi(:,i),psi(:,i))
 
 
                 end if
@@ -1939,6 +1957,7 @@ gw_Sigma_g=gw_Sigma_g-1.0d0/2.0d0/pi*zNgNgtemp*zNgNgtemp2*gweight_1D(i)*(Xi_max(
             allocate(zNgNgtemp(Ne*Nquadrature,Ne*Nquadrature))
             allocate(zNnNgtemp(Nn,Ne*Nquadrature))
             allocate(NNmatrix_temp006(Nn,Nn))
+            allocate(NgNgtemp(Ne*Nquadrature,Ne*Nquadrature))
 
 
             ! gw_Sigma_complex_poles=ZZERO
@@ -1972,8 +1991,9 @@ gw_Sigma_g=gw_Sigma_g-1.0d0/2.0d0/pi*zNgNgtemp*zNgNgtemp2*gweight_1D(i)*(Xi_max(
     
     call mkl_zcsrmm('N',Ne*Nquadrature,Ne*Nquadrature,Nn,ZONE,matdescra,NnToNg*j_real,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
                                         ,transpose(zNgNntemp),Nn,ZZERO,zNgNgtemp,Ne*Nquadrature)
-    
-    zNgNgtemp=zNgNgtemp*outer_product(psi_point_g(:,k)*volumegweight(:),psi_point_g(:,k))
+
+    call outer_product('ge',psi_point_g(:,k)*volumegweight(:),psi_point_g(:,k),NgNgtemp)
+    zNgNgtemp=zNgNgtemp*NgNgtemp!outer_product(psi_point_g(:,k)*volumegweight(:),psi_point_g(:,k))
     
     call mkl_zcsrmm('T',Ne*Nquadrature,Ne*Nquadrature,Nn,ZONE,matdescra,NnToNg*j_real,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
                                         ,zNgNgtemp,Ne*Nquadrature,ZZERO,zNnNgtemp,Nn)
@@ -2033,8 +2053,8 @@ gw_Sigma_g=gw_Sigma_g-1.0d0/2.0d0/pi*zNgNgtemp*zNgNgtemp2*gweight_1D(i)*(Xi_max(
         call mkl_zcsrmm('N',Ne*Nquadrature,Ne*Nquadrature,Nn,ZONE,matdescra,NnToNg*j_real,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
                                                     ,transpose(zNgNntemp),Nn,ZZERO,zNgNgtemp,Ne*Nquadrature)
 
-
-            zNgNgtemp=zNgNgtemp*outer_product(psi_point_g(:,i),psi_point_g(:,i))
+            call outer_product('ge',psi_point_g(:,i),psi_point_g(:,i),NgNgtemp)
+            zNgNgtemp=zNgNgtemp*NgNgtemp!outer_product(psi_point_g(:,i),psi_point_g(:,i))
 
 
                 gw_Sigma_g_poles=gw_Sigma_g_poles-zNgNgtemp
@@ -2090,7 +2110,8 @@ gw_Sigma_g=gw_Sigma_g-1.0d0/2.0d0/pi*zNgNgtemp*zNgNgtemp2*gweight_1D(i)*(Xi_max(
     call mkl_zcsrmm('N',Ne*Nquadrature,Ne*Nquadrature,Nn,ZONE,matdescra,NnToNg*j_real,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
                                         ,transpose(zNgNntemp),Nn,ZZERO,zNgNgtemp,Ne*Nquadrature)
     
-    zNgNgtemp=zNgNgtemp*outer_product(psi_point_g(:,k)*volumegweight(:),psi_point_g(:,k))
+    call outer_product('ge',psi_point_g(:,k)*volumegweight(:),psi_point_g(:,k),NgNgtemp)
+    zNgNgtemp=zNgNgtemp*NgNgtemp!outer_product(psi_point_g(:,k)*volumegweight(:),psi_point_g(:,k))
     
     call mkl_zcsrmm('T',Ne*Nquadrature,Ne*Nquadrature,Nn,ZONE,matdescra,NnToNg*j_real,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
                                         ,zNgNgtemp,Ne*Nquadrature,ZZERO,zNnNgtemp,Nn)
@@ -2152,8 +2173,8 @@ gw_Sigma_g=gw_Sigma_g-1.0d0/2.0d0/pi*zNgNgtemp*zNgNgtemp2*gweight_1D(i)*(Xi_max(
     
     
 
-
-            zNgNgtemp=zNgNgtemp*outer_product(psi_point_g(:,i),psi_point_g(:,i))
+            call outer_product('ge',psi_point_g(:,i),psi_point_g(:,i),NgNgtemp)
+            zNgNgtemp=zNgNgtemp*NgNgtemp!outer_product(psi_point_g(:,i),psi_point_g(:,i))
 
 
                 gw_Sigma_g_poles=gw_Sigma_g_poles+zNgNgtemp
@@ -2180,6 +2201,7 @@ gw_Sigma_g=gw_Sigma_g-1.0d0/2.0d0/pi*zNgNgtemp*zNgNgtemp2*gweight_1D(i)*(Xi_max(
             deallocate(zNgNgtemp)
             deallocate(zNnNgtemp)
             deallocate(NNmatrix_temp006)
+            deallocate(NgNgtemp)
 
 
             end if  !!! hadamard 
@@ -2202,6 +2224,7 @@ gw_Sigma_g=gw_Sigma_g-1.0d0/2.0d0/pi*zNgNgtemp*zNgNgtemp2*gweight_1D(i)*(Xi_max(
 
             deallocate(matrix_temp0)
             deallocate(matrix_temp1)
+            deallocate(matrix_temp2)
             deallocate(G)
 
             
@@ -2292,8 +2315,8 @@ gw_Sigma_g=gw_Sigma_g-1.0d0/2.0d0/pi*zNgNgtemp*zNgNgtemp2*gweight_1D(i)*(Xi_max(
                         matrix_temp2=matrix_temp2+G_real
 
 
-
-            matrix_temp3=matrix_temp3+2.0d0*matrix_temp2*outer_product(psi(:,k),psi(:,k))
+            call outer_product('ge',psi(:,k),psi(:,k),matrix_temp)
+            matrix_temp3=matrix_temp3+2.0d0*matrix_temp2*matrix_temp!outer_product(psi(:,k),psi(:,k))
 
 
 
@@ -2324,8 +2347,8 @@ gw_Sigma_g=gw_Sigma_g-1.0d0/2.0d0/pi*zNgNgtemp*zNgNgtemp2*gweight_1D(i)*(Xi_max(
             call PARDISO(pt_v,MAXFCT,MNUM,MTYPE,PHASE,Nn,usb(1:nnza)*j_real,uisa,ujsa,idum,Nn,IPARM_V,MSGLVL,matrix_temp3*j_real&
                 ,G,pardiso_info)
 
-
-                gw_Sigma_complex_poles=gw_Sigma_complex_poles-G*outer_product(psi(:,i),psi(:,i))
+                call outer_product('ge',psi(:,i),psi(:,i),matrix_temp)
+                gw_Sigma_complex_poles=gw_Sigma_complex_poles-G*matrix_temp!outer_product(psi(:,i),psi(:,i))
 
                 end if
 
@@ -2378,8 +2401,8 @@ gw_Sigma_g=gw_Sigma_g-1.0d0/2.0d0/pi*zNgNgtemp*zNgNgtemp2*gweight_1D(i)*(Xi_max(
                         matrix_temp2=matrix_temp2+G_real
 
 
-
-            matrix_temp3=matrix_temp3+2.0d0*matrix_temp2*outer_product(psi(:,k),psi(:,k))
+            call outer_product('ge',psi(:,k),psi(:,k),matrix_temp)
+            matrix_temp3=matrix_temp3+2.0d0*matrix_temp2*matrix_temp!outer_product(psi(:,k),psi(:,k))
 
 
 
@@ -2411,8 +2434,8 @@ gw_Sigma_g=gw_Sigma_g-1.0d0/2.0d0/pi*zNgNgtemp*zNgNgtemp2*gweight_1D(i)*(Xi_max(
             call PARDISO(pt_v,MAXFCT,MNUM,MTYPE,PHASE,Nn,usb(1:nnza)*j_real,uisa,ujsa,idum,Nn,IPARM_V,MSGLVL,matrix_temp3*j_real&
                 ,G,pardiso_info)
 
-
-                gw_Sigma_complex_poles=gw_Sigma_complex_poles+G*outer_product(psi(:,i),psi(:,i))*j_real
+                call outer_product('ge',psi(:,i),psi(:,i),matrix_temp)
+                gw_Sigma_complex_poles=gw_Sigma_complex_poles+G*matrix_temp!outer_product(psi(:,i),psi(:,i))*j_real
 
 
                 end if
@@ -2460,6 +2483,7 @@ gw_Sigma_g=gw_Sigma_g-1.0d0/2.0d0/pi*zNgNgtemp*zNgNgtemp2*gweight_1D(i)*(Xi_max(
 
             complex(kind=(kind(1.0d0))),dimension(:,:),allocatable :: matrix_temp,matrix_temp1,matrix_temp2,G
             complex(kind=(kind(1.0d0))),dimension(:),allocatable :: lapack_work
+            double precision,dimension(:,:),allocatable :: matrix_temp_real,NgNgtemp_real
 
 
             ! double precision,dimension(:,:),allocatable :: matrix_temp,matrix_temp2,matrix_temp3,G_real,matrix_temp0,matrix_temp1
@@ -2491,6 +2515,7 @@ gw_Sigma_g=gw_Sigma_g-1.0d0/2.0d0/pi*zNgNgtemp*zNgNgtemp2*gweight_1D(i)*(Xi_max(
     
                 allocate(matrix_temp(Nn,Nn))
                 allocate(matrix_temp1(Nn,Nn))
+                allocate(matrix_temp_real(Nn,Nn))
                 allocate(G(Nn,Nn))
 
 
@@ -2537,8 +2562,8 @@ gw_Sigma_g=gw_Sigma_g-1.0d0/2.0d0/pi*zNgNgtemp*zNgNgtemp2*gweight_1D(i)*(Xi_max(
         
                     matrix_temp1=matrix_temp1+G
 
-
-                    matrix_temp=matrix_temp+2.0d0*matrix_temp1*outer_product(psi(:,k),psi(:,k))
+                    call outer_product('ge',psi(:,k),psi(:,k),matrix_temp_real)
+                    matrix_temp=matrix_temp+2.0d0*matrix_temp1*matrix_temp_real!outer_product(psi(:,k),psi(:,k))
 
 
 
@@ -2570,8 +2595,8 @@ gw_Sigma_g=gw_Sigma_g-1.0d0/2.0d0/pi*zNgNgtemp*zNgNgtemp2*gweight_1D(i)*(Xi_max(
                 ,matrix_temp1,pardiso_info)
 
 
-                
-                gw_Sigma_complex_poles=gw_Sigma_complex_poles-matrix_temp1*outer_product(psi(:,i),psi(:,i))
+                call outer_product('ge',psi(:,i),psi(:,i),matrix_temp_real)
+                gw_Sigma_complex_poles=gw_Sigma_complex_poles-matrix_temp1*matrix_temp_real!outer_product(psi(:,i),psi(:,i))
 
 
                 end if
@@ -2607,8 +2632,8 @@ gw_Sigma_g=gw_Sigma_g-1.0d0/2.0d0/pi*zNgNgtemp*zNgNgtemp2*gweight_1D(i)*(Xi_max(
            
 
 
-
-                        matrix_temp=matrix_temp+2.0d0*matrix_temp1*outer_product(psi(:,k),psi(:,k))
+                        call outer_product('ge',psi(:,k),psi(:,k),matrix_temp_real)
+                        matrix_temp=matrix_temp+2.0d0*matrix_temp1*matrix_temp_real!outer_product(psi(:,k),psi(:,k))
 
 
 
@@ -2639,8 +2664,8 @@ gw_Sigma_g=gw_Sigma_g-1.0d0/2.0d0/pi*zNgNgtemp*zNgNgtemp2*gweight_1D(i)*(Xi_max(
                 call PARDISO(pt_v,MAXFCT,MNUM,MTYPE,PHASE,Nn,usb(1:nnza)*j_real,uisa,ujsa,idum,Nn,IPARM_V,MSGLVL,matrix_temp&
                 ,matrix_temp1,pardiso_info)
 
-
-                gw_Sigma_complex_poles=gw_Sigma_complex_poles+matrix_temp1*outer_product(psi(:,i),psi(:,i))
+                call outer_product('ge',psi(:,i),psi(:,i),matrix_temp_real)
+                gw_Sigma_complex_poles=gw_Sigma_complex_poles+matrix_temp1*matrix_temp_real!outer_product(psi(:,i),psi(:,i))
 
 
                 end if
@@ -2665,6 +2690,7 @@ gw_Sigma_g=gw_Sigma_g-1.0d0/2.0d0/pi*zNgNgtemp*zNgNgtemp2*gweight_1D(i)*(Xi_max(
         allocate(zNgNgtemp(Ne*Nquadrature,Ne*Nquadrature))
         allocate(zNnNgtemp(Nn,Ne*Nquadrature))
         allocate(NNmatrix_temp006(Nn,Nn))
+        allocate(NgNgtemp_real(Ne*Nquadrature,Ne*Nquadrature))
 
 
         ! gw_Sigma_complex_poles=ZZERO
@@ -2699,7 +2725,8 @@ gw_Sigma_g=gw_Sigma_g-1.0d0/2.0d0/pi*zNgNgtemp*zNgNgtemp2*gweight_1D(i)*(Xi_max(
 call mkl_zcsrmm('N',Ne*Nquadrature,Ne*Nquadrature,Nn,ZONE,matdescra,NnToNg*j_real,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
                                     ,transpose(zNgNntemp),Nn,ZZERO,zNgNgtemp,Ne*Nquadrature)
 
-zNgNgtemp=zNgNgtemp*outer_product(psi_point_g(:,k)*volumegweight(:),psi_point_g(:,k))
+call outer_product('ge',psi_point_g(:,k)*volumegweight(:),psi_point_g(:,k),NgNgtemp_real)
+zNgNgtemp=zNgNgtemp*NgNgtemp_real!outer_product(psi_point_g(:,k)*volumegweight(:),psi_point_g(:,k))
 
 call mkl_zcsrmm('T',Ne*Nquadrature,Ne*Nquadrature,Nn,ZONE,matdescra,NnToNg*j_real,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
                                     ,zNgNgtemp,Ne*Nquadrature,ZZERO,zNnNgtemp,Nn)
@@ -2759,8 +2786,8 @@ call mkl_zcsrmm('T',Ne*Nquadrature,Ne*Nquadrature,Nn,ZONE,matdescra,NnToNg*j_rea
     call mkl_zcsrmm('N',Ne*Nquadrature,Ne*Nquadrature,Nn,ZONE,matdescra,NnToNg*j_real,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
                                                 ,transpose(zNgNntemp),Nn,ZZERO,zNgNgtemp,Ne*Nquadrature)
 
-
-        zNgNgtemp=zNgNgtemp*outer_product(psi_point_g(:,i),psi_point_g(:,i))
+        call outer_product('ge',psi_point_g(:,i),psi_point_g(:,i),NgNgtemp_real)
+        zNgNgtemp=zNgNgtemp*NgNgtemp_real!outer_product(psi_point_g(:,i),psi_point_g(:,i))
 
 
             gw_Sigma_g_poles=gw_Sigma_g_poles-zNgNgtemp
@@ -2816,7 +2843,8 @@ call mkl_zcsrmm('T',Ne*Nquadrature,Ne*Nquadrature,Nn,ZONE,matdescra,NnToNg*j_rea
 call mkl_zcsrmm('N',Ne*Nquadrature,Ne*Nquadrature,Nn,ZONE,matdescra,NnToNg*j_real,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
                                     ,transpose(zNgNntemp),Nn,ZZERO,zNgNgtemp,Ne*Nquadrature)
 
-zNgNgtemp=zNgNgtemp*outer_product(psi_point_g(:,k)*volumegweight(:),psi_point_g(:,k))
+call outer_product('ge',psi_point_g(:,k)*volumegweight(:),psi_point_g(:,k),NgNgtemp_real)
+zNgNgtemp=zNgNgtemp*NgNgtemp_real!outer_product(psi_point_g(:,k)*volumegweight(:),psi_point_g(:,k))
 
 call mkl_zcsrmm('T',Ne*Nquadrature,Ne*Nquadrature,Nn,ZONE,matdescra,NnToNg*j_real,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
                                     ,zNgNgtemp,Ne*Nquadrature,ZZERO,zNnNgtemp,Nn)
@@ -2878,8 +2906,8 @@ call mkl_zcsrmm('T',Ne*Nquadrature,Ne*Nquadrature,Nn,ZONE,matdescra,NnToNg*j_rea
 
 
 
-
-        zNgNgtemp=zNgNgtemp*outer_product(psi_point_g(:,i),psi_point_g(:,i))
+        call outer_product('ge',psi_point_g(:,i),psi_point_g(:,i),NgNgtemp_real)
+        zNgNgtemp=zNgNgtemp*NgNgtemp_real!outer_product(psi_point_g(:,i),psi_point_g(:,i))
 
 
             gw_Sigma_g_poles=gw_Sigma_g_poles+zNgNgtemp
@@ -2906,6 +2934,7 @@ call mkl_zcsrmm('T',Ne*Nquadrature,Ne*Nquadrature,Nn,ZONE,matdescra,NnToNg*j_rea
         deallocate(zNgNgtemp)
         deallocate(zNnNgtemp)
         deallocate(NNmatrix_temp006)
+        deallocate(NgNgtemp_real)
 
             
             end if !!! hadamard
@@ -2917,6 +2946,7 @@ call mkl_zcsrmm('T',Ne*Nquadrature,Ne*Nquadrature,Nn,ZONE,matdescra,NnToNg*j_rea
 
             deallocate(matrix_temp)
             deallocate(matrix_temp1)
+            deallocate(matrix_temp_real)
             deallocate(G)
 
     else if (type=='hf') then
@@ -2939,6 +2969,7 @@ call mkl_zcsrmm('T',Ne*Nquadrature,Ne*Nquadrature,Nn,ZONE,matdescra,NnToNg*j_rea
             allocate(matrix_temp(Nn,Nn))
             allocate(matrix_temp1(Nn,Nn))
             allocate(matrix_temp2(Nn,Nn))
+            allocate(matrix_temp_real(Nn,Nn))
             allocate(G(Nn,Nn))
             
             lapack_lwork=Nn
@@ -3005,8 +3036,8 @@ call mkl_zcsrmm('T',Ne*Nquadrature,Ne*Nquadrature,Nn,ZONE,matdescra,NnToNg*j_rea
                         matrix_temp=matrix_temp+G
 
 
-
-                        matrix_temp1=matrix_temp1+2.0d0*matrix_temp*outer_product(psi(:,k),psi(:,k))
+                        call outer_product('ge',psi(:,k),psi(:,k),matrix_temp_real)
+                        matrix_temp1=matrix_temp1+2.0d0*matrix_temp*matrix_temp_real!outer_product(psi(:,k),psi(:,k))
 
 
 
@@ -3037,8 +3068,8 @@ call mkl_zcsrmm('T',Ne*Nquadrature,Ne*Nquadrature,Nn,ZONE,matdescra,NnToNg*j_rea
                 call PARDISO(pt_v,MAXFCT,MNUM,MTYPE,PHASE,Nn,usb(1:nnza)*j_real,uisa,ujsa,idum,Nn,IPARM_V,MSGLVL,matrix_temp1&
                 ,matrix_temp,pardiso_info)
 
-
-                gw_Sigma_complex_poles=gw_Sigma_complex_poles-matrix_temp*outer_product(psi(:,i),psi(:,i))
+                call outer_product('ge',psi(:,i),psi(:,i),matrix_temp_real)
+                gw_Sigma_complex_poles=gw_Sigma_complex_poles-matrix_temp*matrix_temp_real!outer_product(psi(:,i),psi(:,i))
                 
 
 
@@ -3100,8 +3131,8 @@ call mkl_zcsrmm('T',Ne*Nquadrature,Ne*Nquadrature,Nn,ZONE,matdescra,NnToNg*j_rea
                         matrix_temp=matrix_temp+G
 
 
-
-                        matrix_temp1=matrix_temp1+2.0d0*matrix_temp*outer_product(psi(:,k),psi(:,k))
+                        call outer_product('ge',psi(:,k),psi(:,k),matrix_temp_real)
+                        matrix_temp1=matrix_temp1+2.0d0*matrix_temp*matrix_temp_real!outer_product(psi(:,k),psi(:,k))
 
 
 
@@ -3132,8 +3163,8 @@ call mkl_zcsrmm('T',Ne*Nquadrature,Ne*Nquadrature,Nn,ZONE,matdescra,NnToNg*j_rea
                 call PARDISO(pt_v,MAXFCT,MNUM,MTYPE,PHASE,Nn,usb(1:nnza)*j_real,uisa,ujsa,idum,Nn,IPARM_V,MSGLVL,matrix_temp1&
                 ,matrix_temp,pardiso_info)
 
-
-                gw_Sigma_complex_poles=gw_Sigma_complex_poles+matrix_temp*outer_product(psi(:,i),psi(:,i))
+                call outer_product('ge',psi(:,i),psi(:,i),matrix_temp_real)
+                gw_Sigma_complex_poles=gw_Sigma_complex_poles+matrix_temp*matrix_temp_real!outer_product(psi(:,i),psi(:,i))
 
 
                 end if
@@ -3148,6 +3179,7 @@ call mkl_zcsrmm('T',Ne*Nquadrature,Ne*Nquadrature,Nn,ZONE,matdescra,NnToNg*j_rea
 
             deallocate(matrix_temp1)
             deallocate(matrix_temp2)
+            deallocate(matrix_temp_real)
             deallocate(G)
 
         end if
@@ -3646,6 +3678,7 @@ call mkl_zcsrmm('T',Ne*Nquadrature,Ne*Nquadrature,Nn,ZONE,matdescra,NnToNg*j_rea
             integer,intent(in) :: Nstates,Nempty
             double precision,dimension(:),intent(in) :: E_casida
             integer :: k,kk
+            double precision,dimension(:,:),allocatable :: temp
     
             casida_Kx=4.0d0*casida_Kx
             ! casida_Kx=2.0d0*casida_Kx
@@ -3661,8 +3694,11 @@ call mkl_zcsrmm('T',Ne*Nquadrature,Ne*Nquadrature,Nn,ZONE,matdescra,NnToNg*j_rea
             do k=1,Nstates*Nempty
                 casida_Kx(k,k)=casida_Kx(k,k)+casida_R(k)
             enddo
+
+            allocate(temp(Nstates*Nempty,Nstates*Nempty))
+            call outer_product('ge',casida_R_half,casida_R_half,temp)
     
-            casida_Kx=casida_Kx*outer_product(casida_R_half,casida_R_half)
+            casida_Kx=casida_Kx*temp!outer_product(casida_R_half,casida_R_half)
     
     
         end subroutine compute_gw_Casida_matrix
@@ -4051,481 +4087,6 @@ call mkl_zcsrmm('T',Ne*Nquadrature,Ne*Nquadrature,Nn,ZONE,matdescra,NnToNg*j_rea
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    subroutine compute_gw_W_CD_real(Nn,Nstates,Nempty,E_dft,omega,nnza,Ne,Nquadrature,type,hadamard)
-        integer,intent(in) :: Nn,Nstates,Nempty,nnza,Ne,Nquadrature
-        double precision,dimension(1:Nstates),intent(in) :: E_dft
-        double precision,intent(in) :: omega
-        ! complex(kind=(kind(1.0d0))),intent(in) :: Ze
-        character(len=*), intent(in) :: type,hadamard
-
-        integer :: i,ii,k,kk,l,ll
-        complex(kind=(kind(1.0d0))) :: valuetemp
-        !!!!! pardiso parameters
-        integer :: MAXFCT,MNUM,MTYPE,MTYPE_real,MSGLVL,PHASE,idum,pardiso_info
-        integer(8),dimension(:),allocatable :: pt_V
-        integer,dimension(:),allocatable :: iparm_V
-
-        complex(kind=(kind(1.0d0))),dimension(:,:),allocatable :: matrix_temp,znnmatrix,G
-        double precision,dimension(:,:),allocatable :: matrix_temp2,dnnmatrix,dnnmatrix2,psi_ia
-        double precision,dimension(:,:),allocatable :: NgNntemp,NgNgtemp,NnNgtemp,NnNgtemp2
-        complex(kind=(kind(1.0d0))),dimension(:),allocatable :: lapack_work
-
-
-        gw_W_real=0.0d0
-
-        allocate(lapack_IPIV(1:Nn))
-
-        if (type=='dft') then
-
-        !!!!!!!!!!!!!!!!!!!!!!!!!!
-        !!! pardiso parameters !!!
-        !!!!!!!!!!!!!!!!!!!!!!!!!!
-        MAXFCT=1
-        MNUM=1
-        MTYPE=6 !!!! 3 for complex and structurally symmetric matrix, 1 for real and structurally symmetric matrix
-        MTYPE_real=1
-        MSGLVL=0
-        allocate(pt_v(64))
-        allocate(iparm_v(64))
-        pt_V=0
-        call pardisoinit(PT_V,MTYPE,IPARM_V)
-        PHASE=13
-
-        allocate(dnnmatrix(Nn,Nn))
-        allocate(dnnmatrix2(Nn,Nn))
-        allocate(G(Nn,Nn))
-
-        if (hadamard=='no') then
-
-
-        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        !!!!!!!!!!!!!!!!    Approximated integral without Hadamard product    !!!!!!!!!!!!!!!!
-        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-        ! do ii=1,Nquadrature1D_range
-        !     do i=1,Nquadrature1D
-
-                dnnmatrix=0.0d0
-    
-                do k=1,Nstates
-
-                    psaz_dft(1:nnza)=(E_dft(k)+omega)*usb(1:nnza)-usa_dft(1:nnza)*j_real
-
-call PARDISO(pt_v,MAXFCT,MNUM,MTYPE,PHASE,Nn,psaz_dft(1),uisa,ujsa,idum,Nn,IPARM_V,MSGLVL,IdentityMatrix_real*j_real,G,pardiso_info)
-                                    
-
-                    dnnmatrix=dnnmatrix+dble(4.0d0*G*outer_product(psi(:,k),psi(:,k)))
-                
-                enddo
-
-    
-                CALL DGEMM('T','N',Nn,Nn,Nn,1.0d0,v00,Nn,dnnmatrix,Nn,0.0d0,dnnmatrix2,Nn)
-    
-                call mkl_dcsrmm('N',Nn,Nn,Nn,1.0d0,matdescrb,B,JA,IA_pntrb,IA_pntre,dnnmatrix2,Nn&
-                                                                        ,0.0d0,dnnmatrix,Nn)
-
-                dnnmatrix2=IdentityMatrix_real-dnnmatrix
-                
-                dnnmatrix=v00
-    
-                CALL DGETRF(Nn,Nn,dnnmatrix2,Nn,lapack_IPIV,lapack_INFO)
-                CALL DGETRS('N',Nn,Nn,dnnmatrix2,Nn,lapack_IPIV,dnnmatrix,Nn,lapack_INFO)
-    
-                dnnmatrix2=dnnmatrix-v00
-
-                call pardiso(pt_v,MAXFCT,MNUM,MTYPE_real,PHASE,Nn,B,IA,JA,idum,Nn&
-                                        ,IPARM_V,MSGLVL,dnnmatrix2,dnnmatrix,pardiso_info)
-    
-                gw_W_real(:,:)=dnnmatrix
-
-                ! print *,(ii-1)*Nquadrature1D+i
-    
-    
-        !     enddo
-        ! enddo
-
-
-
-
-        else if (hadamard=='yes') then
-
-        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        !!!!!!!!!!!!!!!!    Fully integral using Hadamard product    !!!!!!!!!!!!!!!!
-        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-        allocate(NgNntemp(Ne*Nquadrature,Nn))
-        allocate(NgNgtemp(Ne*Nquadrature,Ne*Nquadrature))
-        allocate(NnNgtemp(Nn,Ne*Nquadrature))
-        allocate(NnNgtemp2(Nn,Ne*Nquadrature))
-
-        ! allocate(dnnmatrix(Nn,Nn))
-        ! allocate(dnnmatrix2(Nn,Nn))
-        ! allocate(G(Nn,Nn))
-        allocate(matrix_temp2(Nn,Nn))
-        
-
-        ! do ii=1,Nquadrature1D_range
-        !     do i=1,Nquadrature1D
-
-                NnNgtemp2=0.0d0
-    
-                do k=1,Nstates
-
-                    psaz_dft(1:nnza)=(E_dft(k)+omega)*usb(1:nnza)-usa_dft(1:nnza)*j_real
-call PARDISO(pt_v,MAXFCT,MNUM,MTYPE,PHASE,Nn,psaz_dft(1),uisa,ujsa,idum,Nn,IPARM_V,MSGLVL,IdentityMatrix_real*j_real,G,pardiso_info)
-
-
-            call mkl_dcsrmm('N',Ne*Nquadrature,Nn,Nn,1.0d0,matdescra,NnToNg,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
-                                                ,dble(G),Nn,0.0d0,NgNntemp,Ne*Nquadrature)
-
-            call mkl_dcsrmm('N',Ne*Nquadrature,Ne*Nquadrature,Nn,1.0d0,matdescra,NnToNg,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
-                                                ,transpose(NgNntemp),Nn,0.0d0,NgNgtemp,Ne*Nquadrature)
-
-            NgNgtemp=NgNgtemp*outer_product(psi_point_g(:,k)*volumegweight(:),psi_point_g(:,k))
-
-            call mkl_dcsrmm('T',Ne*Nquadrature,Ne*Nquadrature,Nn,4.0d0,matdescra,NnToNg,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
-                                                ,NgNgtemp,Ne*Nquadrature,0.0d0,NnNgtemp,Nn)
-
-                    NnNgtemp2=NnNgtemp2+NnNgtemp
-                
-                enddo
-
-                CALL DGEMM('T','T',Nn,Nn,Ne*Nquadrature,1.0d0,v_kernel,Ne*Nquadrature,NnNgtemp2,Nn,0.0d0,dnnmatrix2,Nn)
-
-                dnnmatrix=IdentityMatrix_real-dnnmatrix2
-
-                call pardiso(pt_v,MAXFCT,MNUM,MTYPE_real,PHASE,Nn,B,IA,JA,idum,Nn&
-                                        ,IPARM_V,MSGLVL,v00,matrix_temp2,pardiso_info)
-                
-                dnnmatrix2=matrix_temp2
-    
-                CALL DGETRF(Nn,Nn,dnnmatrix,Nn,lapack_IPIV,lapack_INFO)
-                CALL DGETRS('N',Nn,Nn,dnnmatrix,Nn,lapack_IPIV,dnnmatrix2,Nn,lapack_INFO)
-    
-                dnnmatrix=dnnmatrix2-matrix_temp2
-    
-                gw_W_real(:,:)=dnnmatrix
-
-                ! print *,(ii-1)*Nquadrature1D+i
-    
-    
-        !     enddo
-        ! enddo
-
-        deallocate(NgNntemp)
-        deallocate(NgNgtemp)
-        deallocate(NnNgtemp)
-        deallocate(NnNgtemp2)
-        deallocate(matrix_temp2)
-
-        end if
-
-
-
-        deallocate(lapack_IPIV)
-        deallocate(pt_v)
-        deallocate(iparm_v)
-
-        deallocate(dnnmatrix)
-        deallocate(dnnmatrix2)
-        deallocate(G)
-
-
-        else if (type=='hf') then
-
-
-        allocate(matrix_temp(Nn,Nn))
-        allocate(dnnmatrix(Nn,Nn))
-        allocate(dnnmatrix2(Nn,Nn))
-        allocate(G(Nn,Nn))
-
-
-        if (hadamard=='no') then
-
-        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        !!!!!!!!!!!!!!!!    Approximated integral without Hadamard product    !!!!!!!!!!!!!!!!
-        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-        !!!!!!!!!!!!!!!!!!!!!!!!!!
-        !!! pardiso parameters !!!
-        !!!!!!!!!!!!!!!!!!!!!!!!!!
-        MAXFCT=1
-        MNUM=1
-        MTYPE=6 !!!! 3 for complex and structurally symmetric matrix, 1 for real and structurally symmetric matrix
-        MTYPE_real=1
-        MSGLVL=0
-        allocate(pt_v(64))
-        allocate(iparm_v(64))
-        pt_V=0
-        call pardisoinit(PT_V,MTYPE,IPARM_V)
-        PHASE=13
-
-        lapack_lwork=Nn
-        allocate(lapack_work(lapack_lwork))
-
-        ! do ii=1,Nquadrature1D_range
-        !     do i=1,Nquadrature1D
-
-                dnnmatrix=0.0d0
-    
-                do k=1,Nstates
-
-                    matrix_temp=(E_dft(k)+omega)*S_dense-Hhf_dense*j_real
-                    G=IdentityMatrix_real*j_real
-
-                    call zsytrf('U',Nn,matrix_temp,Nn,lapack_IPIV,lapack_work,lapack_lwork,lapack_INFO)
-                    call zsytrs('U',Nn,Nn,matrix_temp,Nn,lapack_IPIV,G,Nn,lapack_INFO)
-
-                                    
-
-                    dnnmatrix=dnnmatrix+4.0d0*dble(G)*outer_product(psi(:,k),psi(:,k))
-                
-                enddo
-    
-                CALL DGEMM('T','N',Nn,Nn,Nn,1.0d0,v00,Nn,dnnmatrix,Nn,0.0d0,dnnmatrix2,Nn)
-    
-                call mkl_dcsrmm('N',Nn,Nn,Nn,1.0d0,matdescrb,B,JA,IA_pntrb,IA_pntre,dnnmatrix2,Nn&
-                                                                        ,0.0d0,dnnmatrix,Nn)
-
-                dnnmatrix2=IdentityMatrix_real-dnnmatrix
-                
-                dnnmatrix=v00
-    
-                CALL DGETRF(Nn,Nn,dnnmatrix2,Nn,lapack_IPIV,lapack_INFO)
-                CALL DGETRS('N',Nn,Nn,dnnmatrix2,Nn,lapack_IPIV,dnnmatrix,Nn,lapack_INFO)
-    
-                dnnmatrix2=dnnmatrix-v00
-
-                call pardiso(pt_v,MAXFCT,MNUM,MTYPE_real,PHASE,Nn,B,IA,JA,idum,Nn&
-                                        ,IPARM_V,MSGLVL,dnnmatrix2,dnnmatrix,pardiso_info)
-    
-                gw_W_real(:,:)=dnnmatrix
-
-                ! print *,(ii-1)*Nquadrature1D+i
-
-    
-    
-        !     enddo
-        ! enddo
-
-
-        deallocate(lapack_IPIV)
-        deallocate(lapack_work)
-
-        deallocate(matrix_temp)
-        deallocate(dnnmatrix)
-        deallocate(dnnmatrix2)
-        deallocate(G)
-
-
-    else if (hadamard=='yes') then
-
-
-        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        !!!!!!!!!!!!!!!!    Fully integral using Hadamard product    !!!!!!!!!!!!!!!!
-        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-        allocate(NgNntemp(Ne*Nquadrature,Nn))
-        allocate(NgNgtemp(Ne*Nquadrature,Ne*Nquadrature))
-        allocate(NnNgtemp(Nn,Ne*Nquadrature))
-        allocate(NnNgtemp2(Nn,Ne*Nquadrature))
-
-        ! allocate(dnnmatrix(Nn,Nn))
-        ! allocate(dnnmatrix2(Nn,Nn))
-        ! allocate(G(Nn,Nn))
-        allocate(matrix_temp2(Nn,Nn))
-
-        lapack_lwork=Nn
-        allocate(lapack_work(lapack_lwork))
-        
-
-        ! do ii=1,Nquadrature1D_range
-        !     do i=1,Nquadrature1D
-
-                NnNgtemp2=0.0d0
-    
-                do k=1,Nstates
-
-            !         psaz_dft(1:nnza)=(E_dft(k)+omega)*usb(1:nnza)-usa_dft(1:nnza)*j_real
-            ! call PARDISO(pt_v,MAXFCT,MNUM,MTYPE,PHASE,Nn,psaz_dft(1),uisa,ujsa,idum,Nn,IPARM_V,MSGLVL,IdentityMatrix,G,pardiso_info)
-
-
-                    matrix_temp=(E_dft(k)+omega)*S_dense-Hhf_dense*j_real
-                    G=IdentityMatrix_real*j_real
-
-                    call zsytrf('U',Nn,matrix_temp,Nn,lapack_IPIV,lapack_work,lapack_lwork,lapack_INFO)
-                    call zsytrs('U',Nn,Nn,matrix_temp,Nn,lapack_IPIV,G,Nn,lapack_INFO)
-
-
-            call mkl_dcsrmm('N',Ne*Nquadrature,Nn,Nn,1.0d0,matdescra,NnToNg,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
-                                                ,dble(G),Nn,0.0d0,NgNntemp,Ne*Nquadrature)
-
-            call mkl_dcsrmm('N',Ne*Nquadrature,Ne*Nquadrature,Nn,1.0d0,matdescra,NnToNg,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
-                                                ,transpose(NgNntemp),Nn,0.0d0,NgNgtemp,Ne*Nquadrature)
-
-            NgNgtemp=NgNgtemp*outer_product(psi_point_g(:,k)*volumegweight(:),psi_point_g(:,k))
-
-            call mkl_dcsrmm('T',Ne*Nquadrature,Ne*Nquadrature,Nn,4.0d0,matdescra,NnToNg,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
-                                                ,NgNgtemp,Ne*Nquadrature,0.0d0,NnNgtemp,Nn)
-
-                    NnNgtemp2=NnNgtemp2+NnNgtemp
-                
-                enddo
-
-                CALL DGEMM('T','T',Nn,Nn,Ne*Nquadrature,1.0d0,v_kernel,Ne*Nquadrature,NnNgtemp2,Nn,0.0d0,dnnmatrix2,Nn)
-
-                dnnmatrix=IdentityMatrix_real-dnnmatrix2
-
-                call pardiso(pt_v,MAXFCT,MNUM,MTYPE_real,PHASE,Nn,B,IA,JA,idum,Nn&
-                                        ,IPARM_V,MSGLVL,v00,matrix_temp2,pardiso_info)
-                
-                dnnmatrix2=matrix_temp2
-    
-                CALL DGETRF(Nn,Nn,dnnmatrix,Nn,lapack_IPIV,lapack_INFO)
-                CALL DGETRS('N',Nn,Nn,dnnmatrix,Nn,lapack_IPIV,dnnmatrix2,Nn,lapack_INFO)
-    
-                dnnmatrix=dnnmatrix2-matrix_temp2
-    
-                gw_W_real(:,:)=dnnmatrix
-
-                ! print *,(ii-1)*Nquadrature1D+i
-    
-    
-        !     enddo
-        ! enddo
-
-        deallocate(NgNntemp)
-        deallocate(NgNgtemp)
-        deallocate(NnNgtemp)
-        deallocate(NnNgtemp2)
-        deallocate(matrix_temp2)
-
-
-
-    end if
-
-
-    end if
-
-
-    end subroutine compute_gw_W_CD_real
-
-
-
-
-    subroutine compute_gw_BSE_psiW(Nn,Ne,Nquadrature,Nstates,Nempty,type)
-        integer,intent(in) :: Nn,Ne,Nquadrature,Nstates,Nempty,type
-        integer :: k
-        double precision,dimension(:,:),allocatable :: worktemp,worktemp2,worktemp3
-
-            ! if (type==0) then
-
-
-    !             allocate(worktemp(1:Nn,1:Nstates*(1+Nstates)/2))
-    !             allocate(worktemp2(1:Nstates*(1+Nstates)/2,1:Nn))
-                
-
-    ! call mkl_dcsrmm('T',Ne*Nquadrature,Nstates*(1+Nstates)/2,Nn,1.0d0,matdescra,NnToNg,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
-    !     ,psi_ii_g_real,Ne*Nquadrature,0.0d0,worktemp,Nn)
-
-    !     CALL DGEMM('T','N',Nstates*(1+Nstates)/2,Nn,Nn,1.0d0,worktemp,Nn,gw_W_real,Nn,0.0d0,worktemp2,Nstates*(1+Nstates)/2)
-
-    !     CALL DGEMM('T','T',Nstates*(1+Nstates)/2,Ne*Nquadrature,Nn,1.0d0,worktemp,Nn,v_kernel,Ne*Nquadrature&
-    !     ,0.0d0,worktemp00,Nstates*(1+Nstates)/2)
-
-    !     worktemp=transpose(worktemp2)
-
-    ! call mkl_dcsrmm('N',Ne*Nquadrature,Nstates*(1+Nstates)/2,Nn,1.0d0,matdescra,NnToNg,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
-    !                                                 ,worktemp,Nn,0.0d0,worktemp0,Ne*Nquadrature)
-                                        
-        
-    !     do k=1,Nstates*(1+Nstates)/2
-    !         worktemp0(:,k)=worktemp0(:,k)*volumegweight(:)
-    !     enddo
-        
-
-    !             deallocate(worktemp)
-    !             deallocate(worktemp2)
-
-
-            allocate(worktemp(1:Nn,1:Nstates*(1+Nstates)/2))
-            allocate(worktemp2(1:Nstates*(1+Nstates)/2,1:Nstates*Nempty))
-            allocate(worktemp3(1:Nstates*(1+Nstates)/2,1:Nn))
-                
-
-    call mkl_dcsrmm('T',Ne*Nquadrature,Nstates*(1+Nstates)/2,Nn,1.0d0,matdescra,NnToNg,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
-    ,psi_ii_g_real,Ne*Nquadrature,0.0d0,worktemp,Nn)
-
-        CALL DGEMM('T','T',Nstates*(1+Nstates)/2,Ne*Nquadrature,Nn,1.0d0,worktemp,Nn,v_kernel,Ne*Nquadrature&
-        ,0.0d0,worktemp00,Nstates*(1+Nstates)/2)
-
-
-        CALL DGEMM('T','N',Nstates*(1+Nstates)/2,Nstates*Nempty,Nn,1.0d0,worktemp,Nn,NNmatrix_temp13,Nn&
-        ,0.0d0,worktemp2,Nstates*(1+Nstates)/2)
-
-
-        do k=1,Nstates*(1+Nstates)/2    
-            worktemp2(k,:)=worktemp2(k,:)*2.0d0/(-sqrt(casida_omega(:)))
-        enddo
-
-
-        CALL DGEMM('N','T',Nstates*(1+Nstates)/2,Nn,Nstates*Nempty,1.0d0,worktemp2,Nstates*(1+Nstates)/2,NNmatrix_temp13,Nn&
-        ,0.0d0,worktemp3,Nstates*(1+Nstates)/2)
-
-        worktemp=transpose(worktemp3)
-
-    call mkl_dcsrmm('N',Ne*Nquadrature,Nstates*(1+Nstates)/2,Nn,1.0d0,matdescra,NnToNg,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
-    ,worktemp,Nn,0.0d0,worktemp0,Ne*Nquadrature)
-                                        
-        
-        do k=1,Nstates*(1+Nstates)/2
-            worktemp0(:,k)=worktemp0(:,k)*volumegweight(:)
-        enddo
-        
-
-                deallocate(worktemp)
-                deallocate(worktemp2)
-                deallocate(worktemp3)
-
-
-!             else
-
-
-!     call mkl_dcsrmm('T',Ne*Nquadrature,Nstates*(1+Nstates)/2,Nn,1.0d0,matdescra,NnToNg,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
-!         ,psi_ii_g_real,Ne*Nquadrature,0.0d0,worktemp,Nn)
-
-!         CALL ZGEMM('T','N',Nstates*(1+Nstates)/2,Nn,Nn,ZONE,worktemp*j_real,Nn,gw_W_z,Nn,ZZERO,worktemp2_z,Nstates*(1+Nstates)/2)
-
-!         worktemp_z=transpose(worktemp2_z)
-
-! call mkl_zcsrmm('N',Ne*Nquadrature,Nstates*(1+Nstates)/2,Nn,ZONE,matdescra,NnToNg*j_real,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
-!                                                     ,worktemp_z,Nn,ZZERO,worktemp3_z,Ne*Nquadrature)
-        
-!         do k=1,Nstates*(1+Nstates)/2
-!             worktemp3_z(:,k)=worktemp3_z(:,k)*volumegweight(:)
-!         enddo
-
-
-
-!             end if
-
-
-    end subroutine compute_gw_BSE_psiW
 
 
 

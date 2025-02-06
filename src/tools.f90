@@ -424,28 +424,6 @@ module tools
   end subroutine quicksort_eigenpairs
 
 
-  function outer_product(u, v) result(res)
-    double precision, intent(in) :: u(:), v(:)
-    double precision :: res(size(u),size(v))
-    integer :: col
-    do col = 1, size(v)
-      res(:,col) = v(col) * u
-    end do
-end function outer_product
-
-
-function outer_product_complex(u, v) result(res)
-    complex(kind=(kind(1.0d0))), intent(in) :: u(:),v(:)
-    complex(kind=(kind(1.0d0))) :: res(size(u),size(v))
-    integer :: col
-    do col = 1, size(v)
-      res(:,col) = v(col) * u
-    end do
-end function outer_product_complex
-
-
-
-
 
 subroutine iterative_solver(B0, rhs, x, n, m0, tol, max_iter)
     implicit none
@@ -632,6 +610,104 @@ subroutine find_interval(arr, n, value, lower_bound, upper_bound)
       write (str2, '(f10.2)') k
       str2 = adjustl(str2)
   end function str2
+
+
+
+  function check_file_in_path(file) result(found)
+    implicit none
+    character(len=*), intent(in) :: file
+    logical :: found
+    character(len=1024) :: path_env
+    character(len=255) :: directory
+    character(len=255) :: full_path
+    integer :: i, start, end_pos, dir_length
+    logical :: exists
+
+    found = .false.
+    exists = .false.
+
+    ! Get the PATH environment variable
+    call get_environment_variable("PATH", value=path_env, length=dir_length)
+
+    ! Loop through each directory in PATH
+    start = 1
+    do i = 1, len(path_env)
+        if (i > dir_length) exit  ! Stop at the end of the PATH variable
+        if (path_env(i:i) == ':' .or. i == len(path_env)) then
+            if (i == len(path_env)) then
+                end_pos = i
+            else
+                end_pos = i - 1
+            end if
+
+            ! Extract the current directory
+            directory = path_env(start:end_pos)
+            start = i + 1
+
+            ! Create the full path to the file
+            full_path = trim(adjustl(directory)) // "/" // trim(file)
+
+            ! Check if the file exists in this directory
+            inquire(file=full_path, exist=exists)
+            if (exists) then
+                found = .true.
+                return
+            end if
+        end if
+    end do
+end function check_file_in_path
+
+
+!   function outer_product(u, v) result(res)
+!     double precision, intent(in) :: u(:), v(:)
+!     double precision :: res(size(u),size(v))
+!     integer :: col
+!     do col = 1, size(v)
+!       res(:,col) = v(col) * u
+!     end do
+! end function outer_product
+
+
+! function outer_product_complex(u, v) result(res)
+!     complex(kind=(kind(1.0d0))), intent(in) :: u(:),v(:)
+!     complex(kind=(kind(1.0d0))) :: res(size(u),size(v))
+!     integer :: col
+!     do col = 1, size(v)
+!       res(:,col) = v(col) * u
+!     end do
+! end function outer_product_complex
+
+
+subroutine outer_product(type,u,v,A)
+  character(len=2),intent(in) :: type !!! option -- 'ge', 'sy'
+  double precision,dimension(:), intent(in) :: u, v
+  double precision,dimension(:,:),intent(inout) :: A
+  integer,allocatable :: m,n
+
+  if (type=='ge') then
+
+    allocate(m,n)
+    m = size(u)
+    n = size(v)
+
+    A=0.0d0
+    call dger(m,n,1.0d0,u,1,v,1,A,m)
+
+  deallocate(m,n)
+
+  else if (type=='sy') then
+
+    allocate(m)
+    m = size(u)
+
+    A=0.0d0
+    call dsyr('U',m,1.0d0,u,1,A,m)
+
+    deallocate(m)
+
+  end if
+
+end subroutine outer_product
 
 
 end module tools

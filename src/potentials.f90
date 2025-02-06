@@ -100,17 +100,19 @@ module potentials
         integer,intent(in) :: Nstates
         ! double precision, dimension(:,:), intent(in) :: psi_temp
         integer :: k
+        double precision, dimension(:,:),allocatable :: A
+
+        allocate(A(size(psii(:,k)),size(psi_point_g(:,k))))
         
         hf_Vhfx=0.0d0
         do k=1,Nstates
-            hf_Vhfx = hf_Vhfx - outer_product(psii(:,k),psi_point_g(:,k))
+            call outer_product('ge',psii(:,k),psi_point_g(:,k),A)
+            hf_Vhfx = hf_Vhfx - A
         enddo
 
         hf_Vhfx=hf_Vhfx*hf_v_kernel
 
-        ! print *,psii(9,1)
-        ! print *,psi_point_g(9,1)
-        ! print *,hf_Vhfx(9,1)
+        deallocate(A)
 
     end subroutine construct_hf_exchangekernel
 
