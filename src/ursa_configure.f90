@@ -101,8 +101,8 @@ program ursa_configure
     !!!!! SIMULATION
     write(10,*) '&MODEL'
     write(10,*) "meanfield='"//trim(adjustl(typeofmeanfield))//"'                    !Options: 'dft', 'hf'(hartree-fock)"
-    write(10,*) "gw_sigma='"//trim(adjustl(gw_sigma))//"'                      !Options: 'cd', 'casida', 'none'(no GW)"
-    write(10,*) "dgr_fem='"//trim(adjustl(dgr_fem))//"'                       !Options: 'p2', 'p3'"
+    write(10,*) "gw_sigma='"//trim(adjustl(gw_sigma))//"'                      !Options: 'casida', 'none'(no GW)"
+    write(10,*) "dgr_fem='"//trim(adjustl(dgr_fem))//"'                         !Options: 'p2', 'p3'"
     write(10,*) "offset=6.0                           !Vaccum space of isolated system"
     write(10,*) '/'
     write(10,*) 
@@ -111,11 +111,11 @@ program ursa_configure
     !!!!! DFT
     write(10,*) '&DFT'
     write(10,*) "xc='lda'                             !Options: 'lda','pbe'"
-    write(10,*) "ks_M0="//trim(str1(2*Nstates0+10))//"                              !Estimated number of Eigenvalues"
+    write(10,*) "ks_M0="//trim(str1(2*Nstates0+10))//"                             !Estimated number of Eigenvalues"
     write(10,*) "ks_Emin=-50.0d0                      !Minimum of Eigenvalue interval in a.u."
     write(10,*) "ks_Emax=0.05d0                       !Maximum of Eigenvalue interval in a.u."
-    write(10,*) "ks_alpha=0.5d0             "
-    write(10,*) "ks_eps=1.0d-8             "
+    write(10,*) "ks_alpha=0.5d0                       !Options:  0.0d0<alpha<1.0d0"
+    write(10,*) "ks_eps=1.0d-8                        !Options:  1.0d-1<eps<1.0d-13"
     write(10,*) "ks_poisson_bc=0                      !Option: 1 for integral, 0 for neutral "
     write(10,*) '/'
     write(10,*) 
@@ -123,44 +123,46 @@ program ursa_configure
 
     !!!!! Hartree-Fock
     write(10,*) '&HartreeFock'
+    write(10,*) "hf_alpha=1.0d0                       !Currently only alpha=1.0d0 is supported"
+    write(10,*) "hf_eps=1.0d-8                        !Options:  1.0d-1<eps<1.0d-13"
     write(10,*) "hf_poisson_bc=0                      !Option: 1 for integral, 0 for neutral "
     write(10,*) '/'
     write(10,*) 
 
 
-    !!!!! Contour-Deformation approach
-    write(10,*) '&ContourDeformation'
-    write(10,*) "cd_method='gs'                       !Options: 'gs','spectrum','nlfeast'"
-    write(10,*) "cd_Hadamard='no'                     !Options: 'no','yes'"
-    write(10,*) "cd_orbital=1                         !The orbital wants to solve"
-    write(10,*) "cd_Emin_grid="//trim(str2(-24.5d0))//"                  !Energy grid minimum in (eV)"
-    write(10,*) "cd_Emax_grid="//trim(str2(2.5d0))//"                    !Energy grid maximum in (eV)"
-    write(10,*) "cd_N_grid=20                              "
-    write(10,*) "cd_Emid=(-24.5,0.0)                  !Midpoint of the contour in FEAST in (eV)"
-    write(10,*) "cd_r="//trim(str2(24.5d0+2.5d0))//"                          !Radius of the contour in FEAST in (eV)"
-    write(10,*) "cd_M0=3                              !Estimated number of Eigenvalues"
-    write(10,*) "cd_igorbital=1                    "
-    write(10,*) "cd_fpm1=1                     "
-    write(10,*) "cd_fpm3=10                    "
-    write(10,*) "cd_fpm8=8                     "
-    write(10,*) "cd_fpm45=2                    "
-    write(10,*) '/'
-    write(10,*) 
+    ! !!!!! Contour-Deformation approach
+    ! write(10,*) '&ContourDeformation'
+    ! write(10,*) "cd_method='gs'                       !Options: 'gs','spectrum','nlfeast'"
+    ! write(10,*) "cd_Hadamard='no'                     !Options: 'no','yes'"
+    ! write(10,*) "cd_orbital=1                         !The orbital wants to solve"
+    ! write(10,*) "cd_Emin_grid="//trim(str2(-24.5d0))//"                  !Energy grid minimum in (eV)"
+    ! write(10,*) "cd_Emax_grid="//trim(str2(2.5d0))//"                    !Energy grid maximum in (eV)"
+    ! write(10,*) "cd_N_grid=20                              "
+    ! write(10,*) "cd_Emid=(-24.5,0.0)                  !Midpoint of the contour in FEAST in (eV)"
+    ! write(10,*) "cd_r="//trim(str2(24.5d0+2.5d0))//"                          !Radius of the contour in FEAST in (eV)"
+    ! write(10,*) "cd_M0=3                              !Estimated number of Eigenvalues"
+    ! write(10,*) "cd_igorbital=1                    "
+    ! write(10,*) "cd_fpm1=1                     "
+    ! write(10,*) "cd_fpm3=10                    "
+    ! write(10,*) "cd_fpm8=8                     "
+    ! write(10,*) "cd_fpm45=2                    "
+    ! write(10,*) '/'
+    ! write(10,*) 
 
 
     !!!!! Fully-analytic approach
-    write(10,*) '&FullyAnalytic'
+    write(10,*) '&G0W0_casida_FullyAnalytic'
     write(10,*) "casida_method='gs'                   !Options: 'gs','nlfeast'"
     write(10,*) "casida_N_empty=1500                  !Default is 1500 "
-    write(10,*) "casida_orbital1=1                     !The orbital wants to solve"
-    write(10,*) "casida_Emin_grid1="//trim(str2(-24.5d0))//"              !Energy grid minimum in (eV)"
-    write(10,*) "casida_Emax_grid1="//trim(str2(-22.5d0))//"                !Energy grid maximum in (eV)"
-    write(10,*) "casida_orbital2=2                     !The orbital wants to solve"
-    write(10,*) "casida_Emin_grid2="//trim(str2(0.0d0))//"              !Energy grid minimum in (eV)"
-    write(10,*) "casida_Emax_grid2="//trim(str2(2.5d0))//"                !Energy grid maximum in (eV)"
-    write(10,*) "casida_N_grid=20                              "
-    write(10,*) "casida_Emid=(-24.5,0.0)              !Midpoint of the contour in FEAST in (eV)"
-    write(10,*) "casida_r="//trim(str2(24.5d0+2.5d0))//"                      !Radius of the contour in FEAST in (eV)"
+    write(10,*) "casida_orbital1=1                    !1st orbital to be solved (e.g. HOMO)"
+    write(10,*) "casida_Emin_grid1="//trim(str2(-25.5d0))//"             !Energy grid minimum in (eV)"
+    write(10,*) "casida_Emax_grid1="//trim(str2(-22.5d0))//"             !Energy grid maximum in (eV)"
+    write(10,*) "casida_orbital2=2                    !2nd orbital to be solved (e.g. LUMO)"
+    write(10,*) "casida_Emin_grid2="//trim(str2(0.0d0))//"               !Energy grid minimum in (eV)"
+    write(10,*) "casida_Emax_grid2="//trim(str2(2.5d0))//"               !Energy grid maximum in (eV)"
+    write(10,*) "casida_N_grid=20                     !Number of grid points"
+    write(10,*) "casida_Emid=(-25.5,0.0)              !Midpoint of the contour in FEAST in (eV)"
+    write(10,*) "casida_r="//trim(str2(25.5d0+2.5d0))//"                       !Radius of the contour in FEAST in (eV)"
     write(10,*) "casida_M0=3                          !Estimated number of Eigenvalues"
     write(10,*) "casida_igorbital=1                    "
     write(10,*) "casida_fpm1=1                     "

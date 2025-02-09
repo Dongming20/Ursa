@@ -341,14 +341,6 @@ program ursa_compute
 
     !!!!! Can read up to 1 argument command line
     iarg = command_argument_count()
-    ! if (iarg/=4) then
-    !     print *,'only 4 argument possible'
-    !     stop
-    ! end if
-    ! call get_command_argument(1,name,clen,stat) ! name of the file
-    ! call get_command_argument(2,meanfield,clen,stat) ! DFT or Hartree Fock -- Options: dft, hf
-    ! call get_command_argument(3,gw_sigma,clen,stat) ! gw self-energy frequency integral  -- Options: cd, casida
-    ! call get_command_argument(4,dgr_fem,clen,stat) ! degree of polynomial of FEM  -- Options: p2, p3
     if (iarg/=1) then
         print *,'only 1 argument possible'
         stop
@@ -363,7 +355,6 @@ program ursa_compute
 
 
     !!!! Read atoms from xyz file
-    ! call load_xyz(name,1.0d0,nbat,at)
     call load_xyz(name,1.0d0)
 
 
@@ -388,9 +379,6 @@ program ursa_compute
         print *,"|                 set Mesh                 |" !!!!! node number is ZERO-base for TETGEN, but ONE-base for DFT code
         print *," -------------------------------------------"
 	
-	! call get_environment_variable('DFTROOT',rootdir) 
-	
-	! print *,trim(rootdir)
 
 
 
@@ -461,26 +449,6 @@ program ursa_compute
         Nface_total=Nface_total+Nface
     enddo
 
-    ! Nmuffin_total=0
-    ! do k=1,nbat
-    !    i=at(k)%core
-    !    write(charI,"(I5)"), i
-    !    open(10,file='../../database_muffins/He.1.node',status='old')
-    !    read(10,*) Nmuffin
-    !    close(10)
-    !    Nmuffin_total=Nmuffin_total+Nmuffin
-    ! enddo
-
-    ! Nface_total=0
-    ! do k=1,nbat
-    !     i=at(k)%core
-    !     write(charI,"(I5)"), i
-    !     open(10,file='../../database_muffins/He.1.face',status='old')
-    !     read(10,*) Nface
-    !     close(10)
-    !     Nface_total=Nface_total+Nface
-    ! enddo
-
 
 
     open(10,file=trim(name)//'.poly',status='replace')
@@ -520,7 +488,6 @@ program ursa_compute
             Nmuffin_total=Nmuffin_total+Nmuffin
         endif
 
-        ! print *,Nmuffin
 
         i=at(k)%core
         write(charI,"(I5)"), i
@@ -532,36 +499,12 @@ program ursa_compute
         enddo
         close(12)
 
-        ! if (k>1) then
-        !     i=at(k-1)%core
-        !     write(charI,"(I5)"), i
-        !     open(12,file='../../database_muffins/He.1.node',status='old')
-        !     read(12,*) Nmuffin  
-        !     close(12)
-        !     Nmuffin_total=Nmuffin_total+Nmuffin
-        ! endif
-
-        ! ! print *,Nmuffin
-
-        ! i=at(k)%core
-        ! write(charI,"(I5)"), i
-        ! open(12,file='../../database_muffins/He.1.node',status='old')
-        ! read(12,*) Nmuffin  
-        ! allocate(point_muffin(1:Nmuffin,1:3))
-        ! do ii=1,Nmuffin
-        ! read(12,*) dummyc,point_muffin(ii,1),point_muffin(ii,2),point_muffin(ii,3)
-        ! enddo
-        ! close(12)
-
-        ! print *,Nmuffin
 
         ro=1.0d0!0.85d0!1.0d0
 
         do i=1,Nmuffin
             !!! according to atom number place different radius of muffin
             write(10,20) 8+Nmuffin_total+i-1,point_muffin(i,:)*ro+at(k)%c(:),0 
-            ! write(10,20) 8+Nmuffin_total+i-1,point_muffin(i,:)*1.0d0+at(k)%c(:),0 
-            ! write(10,20) 8+Nmuffin_total+i-1,point_muffin(i,:)*0.6d0+at(k)%c(:),0 
         end do
 
         deallocate(point_muffin)
@@ -610,12 +553,6 @@ program ursa_compute
     write(10,*) 1,0,1
     write(10,*) 4,1,2,6,5 !2,3,7,6 
 
-    ! do i=1,Nbat
-    !     do ii=1,Nface
-    !         write(10,*) 1, 0, 0
-    !         write(10,*) 3,face_muffin(ii,1)+8+(i-1)*Nmuffin,face_muffin(ii,2)+8+(i-1)*Nmuffin,face_muffin(ii,3)+8+(i-1)*Nmuffin
-    !     enddo
-    ! enddo
 
     Nmuffin_total=0
     do i=1,Nbat
@@ -629,8 +566,6 @@ program ursa_compute
             Nmuffin_total=Nmuffin_total+Nmuffin
         endif
 
-        ! print *,Nmuffin_total
-
         k=at(i)%core
         write(charI,"(I5)"), k
         open(12,file='../../database_muffins/at_'//trim(adjustl(charI))//'.3f',status='old')
@@ -639,29 +574,10 @@ program ursa_compute
         do ii=1,Nface
         read(12,*) dummyc,face_muffin(ii,1),face_muffin(ii,2),face_muffin(ii,3)
 
-        ! if (i>1) then
-        !     l=at(i-1)%core
-        !     write(charI,"(I5)"), l
-        !     open(12,file='../../database_muffins/He.1.node',status='old')
-        !     read(12,*) Nmuffin
-        !     close(12)
-        !     Nmuffin_total=Nmuffin_total+Nmuffin
-        ! endif
-
-        ! ! print *,Nmuffin_total
-
-        ! k=at(i)%core
-        ! write(charI,"(I5)"), k
-        ! open(12,file='../../database_muffins/He.1.face',status='old')
-        ! read(12,*) Nface
-        ! allocate(face_muffin(1:Nface,1:3))
-        ! do ii=1,Nface
-        ! read(12,*) dummyc,face_muffin(ii,1),face_muffin(ii,2),face_muffin(ii,3)
 
         write(10,*) 1, 0, 0
         write(10,*) 3,face_muffin(ii,1)+8+Nmuffin_total,face_muffin(ii,2)+8+Nmuffin_total,face_muffin(ii,3)+8+Nmuffin_total
 
-        ! if (ii==160) print *,face_muffin(ii,1)+8+Nmuffin_total,face_muffin(ii,2)+8+Nmuffin_total,face_muffin(ii,3)+8+Nmuffin_total
         
         enddo
         close(12)
@@ -715,23 +631,10 @@ program ursa_compute
     !! q refine  - h for help
     !! V for statistics !! k is vtk 
     line='tetgen -pq'//trim(qtetgen)//'efkV '//trim(name)//'.poly'
-    ! line='tetgen -pq'//trim(qtetgen)//'ef '//trim(name)//'.poly'  
     print *,line
     call execute_command_line(line)
 
-    ! stop
 
-    ! call execute_command_line('mv '//trim(name)//".1.node"//" "//trim(name)//".node")
-    ! call execute_command_line('mv '//trim(name)//".1.ele" //" "//trim(name)//".ele")
-    ! call execute_command_line('mv '//trim(name)//".1.face"//" "//trim(name)//".face")
-    ! call execute_command_line('mv '//trim(name)//".1.edge"//" "//trim(name)//".edge")
-    ! call execute_command_line('mv '//trim(name)//".1.vtk"//" "//trim(name)//".vtk")
-
-    !!!!!!!!!!!!! copy xyz file to keep track of the input file for the generated mesh
-    ! call execute_command_line('cp '//trim(name)//".xyz"//" "//trim(name)//"_itmesh.xyz")
-
-
-    ! end if ! rank0
 
     ! call MPI_BARRIER(MPI_COMM_WORLD ,code)
 
@@ -804,29 +707,6 @@ program ursa_compute
             Nbc=Nbc+1
         end if
     enddo
-
-    ! Nbc=0
-    ! do i=1,Nn0
-    !     if (color(i)==111) then
-    !         color0(i)=111
-    !         BC=[BC,(/i/)]
-    !         Nbc=Nbc+1
-    !     end if
-    ! enddo
-
-
-    ! do jj=1,2
-
-    !     if (jj==1) then
-
-    !         Nlocal=10
-    !         degree=2
-    !         dgr_fem='p2'
-    !     else
-    !         Nlocal=20
-    !         degree=3
-    !         dgr_fem='p3'
-    !     end if
 
 
     if (dgr_fem=='p2') then
@@ -1109,159 +989,6 @@ program ursa_compute
     deallocate(colore0)
     
 
-    ! allocate(point(1:Nn,1:3))
-    ! allocate(ele(1:Ne,1:(4+6)))
-    ! allocate(color(1:Nn))
-
-
-
-    
-
-    ! stop
-
-
-
-
-
-
-
-    ! open(10,file=trim(name)//'_p2.node',status='replace')
-    ! write(10,fmt='(4i7)') Nn,3,0,1
-    ! do i=1,Nn
-    !     write(10,fmt='(i7,3f12.5,i7)') i,real(point(i,:)*bohr),color(i)
-    ! enddo
-    ! close(10)
-
-    ! 11 format (11i6)
-
-    ! open(10,file=trim(name)//'_p2.ele',status='replace')
-    ! write(10,fmt='(1i7)') Ne
-    ! do i=1,Ne
-    !     write(10,11) i,ele(i,1),ele(i,2),ele(i,3),ele(i,4),ele(i,5),ele(i,6),ele(i,7),ele(i,8),ele(i,9),ele(i,10)!&
-    !     !,ele(i,11),ele(i,12),ele(i,13),ele(i,14),ele(i,15),ele(i,16),ele(i,17),ele(i,18),ele(i,19),ele(i,20)
-    ! enddo
-    ! close(10)
-
-    
-    ! stop
-
-
-    ! stop
-
-
-    ! ! open(10,file='Ne.1_p2.pxyz',status='replace')
-    ! open(10,file='He_p2_extendedBC.pxyz',status='replace')
-
-    ! do i=1,Nn
-    !     write(10,*) point(i,:)*bohr
-    ! enddo
-    ! close(10)
-
-
-    ! stop
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    ! ! open(10,file='CO_atommesh.1_p2.node',status='old')
-    ! ! open(10,file='Ne.1_p2.node',status='old')
-    ! ! open(10,file='He_p2.node',status='old')
-    ! ! open(10,file='He.1_p2.node',status='old')
-    ! open(10,file='He.1_p2 (copy).node',status='old')
-    ! ! open(10,file='at_6.1_p2.node',status='old')
-    ! read(10,*) Nn
-    
-    ! allocate(point(1:Nn,1:3))
-    ! allocate(color(1:Nn))
-
-    ! allocate(BC(0))
-    ! Nbc=0
-
-    ! do i=1,Nn
-    !     read(10,*) dummy,point(i,1),point(i,2),point(i,3),color(i)!,color_new(i),color_new1(i)
-    !     if (color(i)==111) then
-    !         BC=[BC,(/i/)]
-    !         Nbc=Nbc+1
-    !     end if
-    ! enddo
-    ! close(10)
-
-    
-
-    ! point=12.0d0*point ! scaling
-    ! ! point=point/0.529177249d0!*1.5446d0 ! convert to atomic units
-
-
-    ! ! do i=1,Nn
-    ! !     if (color(i)==1) color(i)=111
-    ! ! enddo
-
-
-
-
-
-    ! ! open(10,file='CO_atommesh.1_p2.ele',status='old')
-    ! ! open(10,file='Ne.1_p2.ele',status='old')
-    ! ! open(10,file='He_p2.ele',status='old')
-    ! ! open(10,file='He.1_p2.ele',status='old')
-    ! open(10,file='He.1_p2 (copy).ele',status='old')
-    ! ! open(10,file='at_6.1_p2.ele',status='old')
-    
-    ! read(10,*) Ne
-    ! allocate(ele(1:Ne,1:10))
-
-    ! do i=1,Ne
-    ! read(10,*) dummy,g1,g2,g3,g4,g5,g6,g7,g8,g9,g10
-    ! ele(i,1)=g1+1
-    ! ele(i,2)=g2+1
-    ! ele(i,3)=g3+1
-    ! ele(i,4)=g4+1
-    ! ele(i,5)=g5+1
-    ! ele(i,6)=g6+1
-    ! ele(i,7)=g7+1
-    ! ele(i,8)=g8+1
-    ! ele(i,9)=g9+1
-    ! ele(i,10)=g10+1
-    ! end do
-
-    ! close(10)
-
-
-    ! do i=1,Nbat
-    !     at(i)%c(:)=at(i)%c(:)/bohr
-    ! enddo
-
-
-    ! print *,"Nn -", Nn,"Ne -",Ne
-
-
-    ! Nstates=0
-    ! do i=1,Nbat
-    !     Nstates=Nstates+at(i)%core
-    ! enddo
-    ! Nstates=Nstates/2
-
-    ! print *,'# of occupied orbitals',Nstates
-
-    ! print *,Nbc
-
 
 
 
@@ -1288,18 +1015,7 @@ program ursa_compute
 
     end if
 
-    ! if (jj==1) then
-
     allocate(psi_0(1:Nn))
-    ! allocate(psi_100(1:Nn))
-    ! allocate(psi_200(1:Nn))
-    ! allocate(psi_21x(1:Nn))
-    ! allocate(psi_21y(1:Nn))
-    ! allocate(psi_21z(1:Nn))
-    ! allocate(psi_300(1:Nn))
-    ! allocate(psi_31x(1:Nn))
-    ! allocate(psi_31y(1:Nn))
-    ! allocate(psi_31z(1:Nn))
 
     psi_0=0.0d0
 
@@ -1334,10 +1050,6 @@ program ursa_compute
     write(charI,"(I5)"), k
     open(12,file='../../database_muffins/at_'//trim(adjustl(charI))//'.lda_p2_rnv',status='old')
         
-        ! do
-        !     read(12,*,end=10) r_init(Nn_init+1),dummy_real,n_init(Nn_init+1)
-        !     Nn_init=Nn_init+1
-        ! enddo
         do 
             READ(12,*,iostat=io) r_init(Nn_init(i)+1,i),dummy_real,n_init(Nn_init(i)+1,i)
             IF (io/=0) EXIT
@@ -1358,185 +1070,11 @@ program ursa_compute
 
             call find_interval(r_init(:,ll), Nn_init(ll), rxyz*bohr, lb, ub)
 
-            ! if (i==9) then
-
-            ! print *,lb,ub,rxyz*bohr,rxyz
-            ! print *,point(i,:)
-            ! print *,at(ll)%c(:)
-            ! print *,(n_init(lb,ll)+n_init(ub,ll))/2.0d0
-
-            ! stop
-
-            ! end if
-
-            
-
             psi_0(i)=psi_0(i)+((n_init(ub,ll)-n_init(lb,ll))/(r_init(ub,ll)-r_init(lb,ll))*(rxyz*bohr-r_init(lb,ll))&
             +n_init(lb,ll))*bohr**3
 
         enddo
     enddo
-
-
-
-
-
-!     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!     !!!!!!!!!  compute intitial guess of electron density  !!!!!!!!!!!
-!     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!     !!!! Could be optimized by producing database in advance and read from it. 
-
-!     do i=1,Nn
-!         do ll=1,Nbat
-            
-!             rxyz=distance(point(i,:),at(ll)%c(:))
-
-!             Z0=dble(at(ll)%core)
-        
-!             if (rxyz>radius) then
-
-!                 psi_square_100=0.0d0 
-!                 psi_square_200=0.0d0 
-!                 psi_square_21x=0.0d0 
-!                 psi_square_21y=0.0d0 
-!                 psi_square_21z=0.0d0
-!                 psi_square_300=0.0d0 
-!                 psi_square_31x=0.0d0 
-!                 psi_square_31y=0.0d0 
-!                 psi_square_31z=0.0d0 
-!             else
-                
-!                 call psi_1s(at(ll)%c(:),point(i,:),Z0)
-!                 call psi_2s(at(ll)%c(:),point(i,:),Z0) 
-!                 call psi_2x(at(ll)%c(:),point(i,:),Z0) 
-!                 call psi_2y(at(ll)%c(:),point(i,:),Z0) 
-!                 call psi_2z(at(ll)%c(:),point(i,:),Z0) 
-!                 call psi_3s(at(ll)%c(:),point(i,:),Z0)
-!                 call psi_3x(at(ll)%c(:),point(i,:),Z0)
-!                 call psi_3y(at(ll)%c(:),point(i,:),Z0)
-!                 call psi_3z(at(ll)%c(:),point(i,:),Z0)    
-
-
-
-!                 if (PTABLE(at(ll)%core)%filled_core==0) then
-
-!                     ! psi_100(i)=psi_100(i)+dble(at(ll)%core)*psi_100_temp**2
-
-!                     ! psi_0(i)=psi_100(i)
-
-!                     psi_0(i)=psi_0(i)+dble(at(ll)%core)*psi_square_100**2
-                
-!                 else if (PTABLE(at(ll)%core)%filled_core==2) then
-    
-!                     ! psi_100(i)=psi_100(i)+2.0d0*psi_100_temp**2
-!                     ! psi_200(i)=psi_200(i)+(dble(at(ll)%core)-2.0d0)/4.0d0*psi_200_temp**2
-!                     ! psi_21x(i)=psi_21x(i)+(dble(at(ll)%core)-2.0d0)/4.0d0*psi_21x_temp**2
-!                     ! psi_21y(i)=psi_21y(i)+(dble(at(ll)%core)-2.0d0)/4.0d0*psi_21y_temp**2
-!                     ! psi_21Z(i)=psi_21Z(i)+(dble(at(ll)%core)-2.0d0)/4.0d0*psi_21z_temp**2
-!                     ! ! psi_200(i)=psi_200(i)+2.0d0*psi_200_temp**2
-!                     ! ! psi_21x(i)=psi_21x(i)+(dble(at(ll)%core)-4.0d0)/3.0d0*psi_21x_temp**2
-!                     ! ! psi_21y(i)=psi_21y(i)+(dble(at(ll)%core)-4.0d0)/3.0d0*psi_21y_temp**2
-!                     ! ! psi_21Z(i)=psi_21Z(i)+(dble(at(ll)%core)-4.0d0)/3.0d0*psi_21z_temp**2
-
-!                     ! psi_0(i)=psi_100(i)+psi_200(i)+psi_21x(i)+psi_21y(i)+psi_21z(i)
-
-!                     ! if (at(ll)%core<=4) then
-!                     !     psi_0(i)=psi_0(i)+2.0d0*psi_square_100**2
-!                     ! else
-!                         psi_0(i)=psi_0(i)+2.0d0*psi_square_100**2&
-!                         +(dble(at(ll)%core)-2.0d0)*psi_square_200**2
-!                         ! +(dble(at(ll)%core)-2.0d0)/4.0d0*psi_square_200**2&
-!                         ! +(dble(at(ll)%core)-2.0d0)/4.0d0*psi_square_21x**2&
-!                         ! +(dble(at(ll)%core)-2.0d0)/4.0d0*psi_square_21y**2&
-!                         ! +(dble(at(ll)%core)-2.0d0)/4.0d0*psi_square_21z**2
-!                     ! end if
-    
-!                 else if (PTABLE(at(k)%core)%filled_core==10) then
-    
-!                     ! psi_100(i)=psi_100(i)+2.0d0*psi_100_temp**2
-!                     ! psi_200(i)=psi_200(i)+2.0d0*psi_200_temp**2
-!                     ! psi_21x(i)=psi_21x(i)+2.0d0*psi_21x_temp**2
-!                     ! psi_21y(i)=psi_21y(i)+2.0d0*psi_21y_temp**2
-!                     ! psi_21Z(i)=psi_21Z(i)+2.0d0*psi_21z_temp**2
-!                     ! psi_300(i)=psi_300(i)+(dble(at(ll)%core)-10.0d0)/4.0d0*psi_300_temp**2
-!                     ! psi_31x(i)=psi_31x(i)+(dble(at(ll)%core)-10.0d0)/4.0d0*psi_31x_temp**2
-!                     ! psi_31y(i)=psi_31y(i)+(dble(at(ll)%core)-10.0d0)/4.0d0*psi_31y_temp**2
-!                     ! psi_31Z(i)=psi_31Z(i)+(dble(at(ll)%core)-10.0d0)/4.0d0*psi_31z_temp**2
-
-!                     ! psi_0(i)=psi_100(i)+psi_200(i)+psi_21x(i)+psi_21y(i)+psi_21z(i)+psi_300(i)+psi_31x(i)+psi_31y(i)+psi_31z(i)
-                    
-                    
-!                     psi_0(i)=psi_0(i)+2.0d0*psi_square_100**2&
-!                     +2.0d0*psi_square_200**2&
-!                     +2.0d0*psi_square_21x**2&
-!                     +2.0d0*psi_square_21y**2&
-!                     +2.0d0*psi_square_21z**2&
-!                     +(dble(at(ll)%core)-10.0d0)/4.0d0*psi_square_300**2&
-!                     +(dble(at(ll)%core)-10.0d0)/4.0d0*psi_square_31x**2&
-!                     +(dble(at(ll)%core)-10.0d0)/4.0d0*psi_square_31y**2&
-!                     +(dble(at(ll)%core)-10.0d0)/4.0d0*psi_square_31z**2
-
-    
-!                 end if
-
-!             end if
-
-!         enddo
-
-!         ! psi_0(i)=psi_100(i)+psi_200(i)+psi_21x(i)+psi_21y(i)+psi_21z(i)+psi_300(i)+psi_31x(i)+psi_31y(i)+psi_31z(i) 
-!         psi_0(i)=sqrt(psi_0(i))
-
-!     enddo
-
-! ! else if (jj==2) then
-! !     psi_0(:)=sqrt(nq(:))
-
-! ! end if
-
-
-!     ! allocate(psi_0(1:Nn))
-!     ! deallocate(psi_100)
-!     ! deallocate(psi_200)
-!     ! deallocate(psi_21x)
-!     ! deallocate(psi_21y)
-!     ! deallocate(psi_21z)
-!     ! deallocate(psi_300)
-!     ! deallocate(psi_31x)
-!     ! deallocate(psi_31y)
-!     ! deallocate(psi_31z)
-
-
-
-
-
-
-
-    ! allocate(psi_i(1:Nn,1:Nstates+1))
-    ! do k=1,Nstates+1
-    ! write (file_id, '(I0)') k
-    ! ! open (unit=20,file='H2O.1_p2_nessie.psi'//trim(file_id),status='old')
-    ! open (unit=20,file='Ne.1_p2_nessie.psi'//trim(file_id),status='old')
-    ! do i=1,Nn
-    !     read(20,*) psi_i(i,k)
-    ! enddo
-    ! close (20)
-    ! enddo
-    ! psi_i=psi_i*sqrt(a0*bohr**3)
-    
-    
-    
-
-    
-
-
-
-
-
-    ! stop
-
-
-
-
 
 
 
@@ -1546,94 +1084,15 @@ program ursa_compute
         allocate(psi_i(1:Nn,1:Nstates+1))
         do k=1,Nstates+1
         write (file_id, '(I0)') k
-        ! open (unit=20,file='CO.1_p2_nessie.psi'//trim(file_id),status='old')
-        ! open (unit=20,file='CO_p2_dft.psi'//trim(file_id),status='old')
-        ! open (unit=20,file='CO_p2_dft_1.psi'//trim(file_id),status='old')
-        ! open (unit=20,file='CO_0.6415.1_p2_nessie.psi'//trim(file_id),status='old')
-        ! open (unit=20,file='He.1_p2_nessie.psi'//trim(file_id),status='old')
-        ! open (unit=20,file='He_p2_dft_1.psi'//trim(file_id),status='old')
-        ! open (unit=20,file='He_p3_dft_1.psi'//trim(file_id),status='old')
-        ! open (unit=20,file='Ne.1_p2_nessie.psi'//trim(file_id),status='old')
-        ! open (unit=20,file='Ne_p2_dft.psi'//trim(file_id),status='old')
-        ! open (unit=20,file='LiH.1_p2_nessie.psi'//trim(file_id),status='old')
-        open (unit=20,file='LiH_p2_dft_1.psi'//trim(file_id),status='old')
-        ! open (unit=20,file='Li2_p2_dft.psi'//trim(file_id),status='old')
-        ! open (unit=20,file='H2.1_p2_nessie.psi'//trim(file_id),status='old')
-        ! open (unit=20,file='H2_p2_dft_1.psi'//trim(file_id),status='old')
-        ! open (unit=20,file='F2_p2_dft_1.psi'//trim(file_id),status='old')
-        ! open (unit=20,file='P2_p2_dft_1.psi'//trim(file_id),status='old')
-        ! open (unit=20,file='NP_p2_dft_1.psi'//trim(file_id),status='old')
-        ! open (unit=20,file='H2O.1_p2_nessie.psi'//trim(file_id),status='old')
+        open (unit=20,file=trim(name)//'_p2_dft_1.psi'//trim(file_id),status='old')
         do i=1,Nn
             read(20,*) psi_i(i,k)
         enddo
         close (20)
         enddo
-        ! psi_i=psi_i*sqrt(a0*bohr**3)
-
-        ! do k=1,Nstates
-        ! write (file_id, '(I0)') k
-        ! ! open (unit=20,file='CO.1_p2_nessie.psi'//trim(file_id),status='old')
-        ! ! open (unit=20,file='CO_0.6415.1_p2_nessie.psi'//trim(file_id),status='old')
-        ! open (unit=20,file='He_p2_dft.psi'//trim(file_id),status='old')
-        ! ! open (unit=20,file='LiH.1_p2_nessie.psi'//trim(file_id),status='old')
-        ! ! open (unit=20,file='H2.1_p2_nessie.psi'//trim(file_id),status='old')
-        ! ! open (unit=20,file='H2O.1_p2_nessie.psi'//trim(file_id),status='old')
-        ! do i=1,Nn
-        !     read(20,*) psi_i(i,k)
-        ! enddo
-        ! close (20)
-        ! enddo
-
-
-        ! psi_i = 0.0d0
-
-        ! do i=1,Nn
-        !     do ll=1,Nbat
-
-        !         rxyz=distance(point(i,:),at(ll)%c(:))
-
-        !         psi_i(i,1) = psi_i(i,1) + 1.0d0/sqrt(pi)*at(ll)%core**(3.0d0/2.0d0)*exp(-at(ll)%core*rxyz)
-
-        !     enddo
-        ! enddo
-
-
-
-        ! do i=1,Nn
-        !     psi_i(i,1)=psi_1s(at(1)%c(:),point(i,:),dble(at(1)%core))
-        ! enddo
-
-
-
-
-        print *,"+++++++++"
+        
 
     end if
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1689,48 +1148,6 @@ do i=1,Nn
     enddo
 enddo
 IA(Nn+1)=neigh_size+1
-
-
-
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!    quaternion     !!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-! allocate(quaternion(4*Nn))
-! allocate(quaternion_A(16*neigh_size))
-! allocate(quaternion_IA(4*Nn+1))
-! allocate(quaternion_JA(16*neigh_size))
-
-! call build_quaternionmatrix(Nn)
-
-! ii=0
-! do i=1,4*Nn
-!     quaternion_IA(i)=ii+1
-!     do l=1,quaternion(i)%size
-!         ii=ii+1
-!         quaternion_JA(ii)=quaternion(i)%get(l)
-!     enddo
-! enddo
-
-! ! print *,ii,neigh_size
-
-! ! stop
-
-
-! quaternion_IA(4*Nn+1)=16*neigh_size+1
-
-! allocate(IdenMat_quaternion(4*Nn,Nn))
-
-! do i=1,Nn
-!     IdenMat_quaternion((i-1)*4+1,i)=1.0d0
-!     ! IdenMat_quaternion((i-1)*4+3,i)=1.0d0!sqrt(1.0d0/3.0d0)
-!     ! IdenMat_quaternion((i-1)*4+4,i)=sqrt(1.0d0/3.0d0)
-! enddo
-
-! allocate(G_quaternion(4*Nn,Nn))
-
-! ! stop
     
 
 
@@ -1758,16 +1175,7 @@ do i=1,Nn
     enddo
 enddo
 
-! open(10,file='S_dense.txt',status='replace')
-! do i=1,Nn
-!     write(10,*) S_dense(i,:)
-! enddo
 
-! stop
-
-! print *,B(1)
-
-! stop
 
 allocate(neigh_NnToNg(1:Ne*Nquadrature))
 call construct_NnToNg(Ne,Nquadrature,Nlocal)
@@ -1776,8 +1184,7 @@ call construct_NnToNg(Ne,Nquadrature,Nlocal)
 !!!!!!!!!!!     FEAST eigensolver parameters setting      !!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-M0=ks_M00!40 ! 2*Nstates+10!+40 ! 40 is an arbitrary number 
-                ! it could be even optimized by solving each eigenvalue interval provided by FEAST, which is much faster than this.
+M0=ks_M00
 Emin=ks_Emin0
 Emax=ks_Emax0
 
@@ -1791,167 +1198,6 @@ allocate(E_hf(Nn))
 
 
 
-
-
-
-
-
-
-! allocate(snq1(Nn))
-! allocate(psi_ks00(Nn))
-! allocate(psi_gw00(Nn))
-
-
-! ! do ii=1,Nstates+1
-
-! write (file_id, '(I0)') Nstates
-! ! open (unit=20,file=trim(name)//'_p2_dft_1.psi'//trim(file_id),status='old')
-! open (unit=20,file=trim(name)//'_p2_hf_1.psi'//trim(file_id),status='old')
-! ! open (unit=20,file='CO_p2_dft_2.psi'//trim(file_id),status='old')
-! ! open (unit=20,file='CO_p2_hf_1.psi'//trim(file_id),status='old')
-! ! open (unit=20,file='Li2_p2_hf_2.psi'//trim(file_id),status='old')
-! ! open (unit=20,file='Ne_p2_hf_2.psi'//trim(file_id),status='old')
-! ! open (unit=20,file='H2_p2_dft_1.psi'//trim(file_id),status='old')
-
-! do i=1,Nn
-!     read(20,*) psi_ks00(i)
-! enddo
-! close (20)
-
-! write (file_id, '(I0)') Nstates+1
-! ! open (unit=20,file=trim(name)//'_p2_dft_1.psi'//trim(file_id),status='old')
-! open (unit=20,file=trim(name)//'_p2_hf_1.psi'//trim(file_id),status='old')
-! ! open (unit=20,file='CO_p2_dft_2.psi'//trim(file_id),status='old')
-! ! open (unit=20,file='CO_p2_hf_1.psi'//trim(file_id),status='old')
-! ! open (unit=20,file='Li2_p2_hf_2.psi'//trim(file_id),status='old')
-! ! open (unit=20,file='Ne_p2_hf_2.psi'//trim(file_id),status='old')
-! ! open (unit=20,file='H2_p2_dft_1.psi'//trim(file_id),status='old')
-! allocate(psi_ks01(Nn))
-! do i=1,Nn
-!     read(20,*) psi_ks01(i)
-! enddo
-! close (20)
-
-! ! call mkl_dcsrgemv('N',Nn,B,IA,JA,psi_ks00,snq1)
-! ! ! print *,dot_product(psi_ks00,snq1)
-
-! ! psi_ks00=psi_ks00/sqrt(dot_product(psi_ks00,snq1))
-
-! ! call mkl_dcsrgemv('N',Nn,B,IA,JA,psi_ks00,snq1)
-! ! ! print *,dot_product(psi_ks00,snq1)
-
-
-! ! call mkl_dcsrgemv('N',Nn,B,IA,JA,psi_ks01,snq1)
-! ! print *,dot_product(psi_ks01,snq1)
-
-! ! psi_ks01=psi_ks01/sqrt(dot_product(psi_ks01,snq1))
-
-! ! call mkl_dcsrgemv('N',Nn,B,IA,JA,psi_ks01,snq1)
-! ! print *,dot_product(psi_ks01,snq1)
-
-! ! write (file_id, '(I0)') 9
-! ! open (unit=20,file='CO_p2_dft_2.psi'//trim(file_id),status='old')
-! ! ! open (unit=20,file='Ne_p2_dft_1.psi'//trim(file_id),status='old')
-! ! ! open (unit=20,file='H2_p2_dft_1.psi'//trim(file_id),status='old')
-! ! allocate(psi_ks02(Nn))
-! ! do i=1,Nn
-! !     read(20,*) psi_ks02(i)
-! ! enddo
-! ! close (20)
-
-
-
-! write (file_id, '(I0)') 3
-! ! open (unit=20,file=trim(name)//'_p2_hf_1.psi'//trim(file_id),status='old')
-! open (unit=20,file=trim(name)//'_p2_gw.psi'//trim(file_id),status='old')
-! ! open (unit=20,file='CO_p2_gw.psi'//trim(file_id),status='old')
-! ! open (unit=20,file='Li2_p2_gw.psi'//trim(file_id),status='old')
-! ! open (unit=20,file='Ne_p2_gw.psi'//trim(file_id),status='old')
-! ! open (unit=20,file='H2_p2_gw.psi'//trim(file_id),status='old')
-
-! do i=1,Nn
-!     read(20,*) psi_gw00(i)
-! enddo
-! close (20)
-
-! write (file_id, '(I0)') 4
-! ! open (unit=20,file=trim(name)//'_p2_hf_1.psi'//trim(file_id),status='old')
-! open (unit=20,file=trim(name)//'_p2_gw.psi'//trim(file_id),status='old')
-! ! open (unit=20,file='CO_p2_gw.psi'//trim(file_id),status='old')
-! ! open (unit=20,file='Li2_p2_gw.psi'//trim(file_id),status='old')
-! ! open (unit=20,file='Ne_p2_gw.psi'//trim(file_id),status='old')
-! ! open (unit=20,file='H2_p2_gw.psi'//trim(file_id),status='old')
-! allocate(psi_gw01(Nn))
-! do i=1,Nn
-!     read(20,*) psi_gw01(i)
-! enddo
-! close (20)
-
-! ! call mkl_dcsrgemv('N',Nn,B,IA,JA,psi_gw00,snq1)
-! ! ! print *,dot_product(psi_gw00,snq1)
-
-! ! psi_gw00=psi_gw00/sqrt(dot_product(psi_gw00,snq1))
-
-! ! call mkl_dcsrgemv('N',Nn,B,IA,JA,psi_gw00,snq1)
-! ! ! print *,dot_product(psi_gw00,snq1)
-
-
-! ! call mkl_dcsrgemv('N',Nn,B,IA,JA,psi_gw01,snq1)
-! ! print *,dot_product(psi_gw01,snq1)
-
-! ! psi_gw01=psi_gw01/sqrt(dot_product(psi_gw01,snq1))
-
-! ! call mkl_dcsrgemv('N',Nn,B,IA,JA,psi_gw01,snq1)
-! ! print *,dot_product(psi_gw01,snq1)
-
-! ! write (file_id, '(I0)') 5
-! ! open (unit=20,file='Ne_p2_gw.psi'//trim(file_id),status='old')
-! ! ! open (unit=20,file='H2_p2_gw.psi'//trim(file_id),status='old')
-! ! allocate(psi_gw02(Nn))
-! ! do i=1,Nn
-! !     read(20,*) psi_gw02(i)
-! ! enddo
-! ! close (20)
-
-
-
-
-! call mkl_dcsrgemv('N',Nn,B,IA,JA,(psi_ks00-psi_gw00),snq1)
-! print *,dot_product((psi_ks00-psi_gw00),snq1)
-
-! call mkl_dcsrgemv('N',Nn,B,IA,JA,(psi_ks00+psi_gw00),snq1)
-! print *,dot_product((psi_ks00+psi_gw00),snq1)
-
-! call mkl_dcsrgemv('N',Nn,B,IA,JA,(psi_ks01-psi_gw01),snq1)
-! print *,dot_product((psi_ks01-psi_gw01),snq1)
-
-! call mkl_dcsrgemv('N',Nn,B,IA,JA,(psi_ks01+psi_gw01),snq1)
-! print *,dot_product((psi_ks01+psi_gw01),snq1)
-
-! ! call mkl_dcsrgemv('N',Nn,B,IA,JA,(psi_ks02-psi_gw01),snq1)
-! ! print *,dot_product((psi_ks02-psi_gw01),snq1)
-
-! ! call mkl_dcsrgemv('N',Nn,B,IA,JA,(psi_ks02+psi_gw01),snq1)
-! ! print *,dot_product((psi_ks02+psi_gw01),snq1)
-
-
-! ! enddo
-
-
-! deallocate(snq1)
-! deallocate(psi_ks00)
-! deallocate(psi_gw00)
-
-
-! stop
-
-
-
-
-! stop
-
-
-! allocate(Etotal(1:Nstates,1:2))
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2004,9 +1250,14 @@ enddo
 
 itmax = 50
 M9 = 50
-alpha = ks_alpha0!0.5d0!0.45d0
 alpha0 = 1.0d0
-eps = ks_eps0!1.0d-8!1.0d-8!1E-8
+if (meanfield=="dft") then
+    eps = ks_eps0!1.0d-8!1.0d-8!1E-8
+    alpha = ks_alpha0!0.5d0!0.45d0
+else if (meanfield=="hf") then
+    eps = hf_eps0
+    alpha = hf_alpha0
+end if
 it=0
 itm = 0
 nrestart = 0
@@ -2091,6 +1342,10 @@ allocate(vc_pbe_g(1:Nn,1:3))
 
 if (gw_sigma=='cd') then
 
+    print *,'Contour Deformation method for self-energy calculation will be included in the next release.'
+
+    stop
+
     allocate(psi_point_g(1:Ne*Nquadrature,1:Nstates))
 
 else if (gw_sigma=='none') then
@@ -2141,39 +1396,11 @@ enddo
 end if
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-! call mkl_dcsrmm('N',Ne*Nquadrature,1,Nn,1.0d0,matdescra,NnToNg,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
-!     ,psi_0,Nn,0.0d0,nq_g,Ne*Nquadrature)
 
-! do i=1,Ne*Nquadrature
-!     if (nq_g(i)<0.0d0) nq_g(i) = 0.0d0
-! enddo
 
 deallocate(psi_0)
-
-! allocate(psii(1:Nn,1:Nstates))
-! allocate(psig(1:Nn,1:Nstates))
-! allocate(psi_previous(1:Nn,1:Nstates,1:M9))
-! allocate(error_previous(1:Nn,1:Nstates,1:M9))
-
-! psi_previous=0.0d0
-! error_previous=0.0d0
-
-! allocate(error_previous0(1:Nn,1:M9))
 allocate(temp2(Nn))
-! do i=1,neigh_size
-!     if (isnan(A00(i))) stop 'NaN number happened'
-!     if (A00(i)-1.0d0==A00(i)) stop 'infinity happened'
-! enddo
 
-! stop
-! nq=0.0d0
-! do i=1,Nstates
-!     nq(:)=nq(:)+2.0d0*psi_i(:,i)**2
-! enddo
-
-
-! allocate(apt_v(64))
-! allocate(aiparm_v(64))
 
 if (meanfield=="dft") then
 
@@ -2185,12 +1412,6 @@ print *,"|           SCF-iteration starts           |"
 print *," ------------------------------------------"
 print *, '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 
-
-
-! call mkl_dcsrgemv('N',Nn,B,IA,JA,psi_0(:),Vh)
-! print *,dot_product(psi_0(:),Vh)
-
-! stop
 
 
 
@@ -2212,19 +1433,12 @@ do while (.true.)
 
         if (it>0) call set_BC(Nn,Nbc,Ne,Nquadrature,Nstates,2.0d0,ks_poisson_bc0,0,0)
 
-        ! call hartreepotential(Nn,Ne,Nquadrature,Nbc,0)
         call hartreepotential(Nn,Ne,Nquadrature,Nstates,Nbc,2.0d0,it,0)
-
-        ! call mkl_dcsrmm('N',Ne*Nquadrature,1,Nn,1.0d0,matdescra,NnToNg,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
-        ! ,Vh,Nn,0.0d0,Vh_g,Ne*Nquadrature)
-
-        
         call exchangepotential(Nn)
         call correlationpotential(Nn)
 
 
         V_total(1:Nn) = Vh(1:Nn)+Vx(1:Nn)+Vc(1:Nn)!+Vi(1:Nn)
-        ! V_total_g(1:Ne*Nquadrature) = Vh_g(1:Ne*Nquadrature)+Vx_g(1:Ne*Nquadrature)+Vc_g(1:Ne*Nquadrature)
 
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         !!!!!!!!!!!!!!!!  construct Hamiltonian  !!!!!!!!!!!!!!!!!!!!!!
@@ -2258,136 +1472,6 @@ do while (.true.)
 
         stop
 
-            ! if (it==0) then
-
-            ! !!!!!!!!!!!!!!!!!!
-            ! !!!!!! LDA !!!!!!!
-            ! !!!!!!!!!!!!!!!!!!
-
-            ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            ! !!!!!!  compute_Hartree/Exchange/Correlation Potentials  !!!!!!
-            ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-            ! if (it>0) call set_BC(Nn,Nbc,Ne,Nquadrature,Nstates,2.0d0,ks_poisson_bc0,0,0)
-
-            ! ! call hartreepotential(Nn,Ne,Nquadrature,Nbc,0)
-            ! call hartreepotential(Nn,Ne,Nquadrature,Nstates,Nbc,2.0d0,it,0)
-
-            ! ! call mkl_dcsrmm('N',Ne*Nquadrature,1,Nn,1.0d0,matdescra,NnToNg,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
-            ! ! ,Vh,Nn,0.0d0,Vh_g,Ne*Nquadrature)
-
-            
-            ! call exchangepotential(Nn)
-            ! call correlationpotential(Nn)
-
-
-            ! V_total(1:Nn) = Vh(1:Nn)+Vx(1:Nn)+Vc(1:Nn)!+Vi(1:Nn)
-            ! ! V_total_g(1:Ne*Nquadrature) = Vh_g(1:Ne*Nquadrature)+Vx_g(1:Ne*Nquadrature)+Vc_g(1:Ne*Nquadrature)
-
-            ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            ! !!!!!!!!!!!!!!!!  construct Hamiltonian  !!!!!!!!!!!!!!!!!!!!!!
-            ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-            ! if (it>0) then
-            !     do i=1,Nn
-            !         ! do ii=1,neigh_V(i)%size
-            !         !     call neigh_V(i)%deleteFirst()
-            !         ! enddo
-            !         call neigh_V(i)%initializeAB()
-            !     enddo
-            ! end if
-            
-            ! call set_linkedlistV(Ne,Nlocal,Nquadrature,0)
-
-            ! ii=0
-            ! do i=1,Nn
-            !     do l=1,neigh_V(i)%size
-            !         ii=ii+1
-            !         xy_V=neigh_V(i)%getab(l)
-            !         V(ii)=dble(xy_V(1))
-            !     enddo
-            ! enddo
-
-
-            ! else
-
-            ! !!!!!!!!!!!!!!!!!!
-            ! !!!!!! PBE !!!!!!!
-            ! !!!!!!!!!!!!!!!!!!
-
-            ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            ! !!!!!!  compute_Hartree/Exchange/Correlation Potentials  !!!!!!
-            ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-            ! if (it>0) call set_BC(Nn,Nbc,Ne,Nquadrature,Nstates,2.0d0,ks_poisson_bc0,0,0)
-
-            ! ! call hartreepotential(Nn,Ne,Nquadrature,Nbc,0)
-            ! call hartreepotential(Nn,Ne,Nquadrature,Nstates,Nbc,2.0d0,it,0)
-
-            ! V_total(1:Nn) = Vh(1:Nn)!+Vx(1:Nn)+Vc(1:Nn)!+Vi(1:Nn)
-
-            ! ! inquire(file='xc_f90_lib_m.mod', exist=module_exists)
-
-            ! ! found = check_file_in_path("xc_f90_lib_m.mod")
-
-            ! ! if (found) then
-            !     ! call compute_nq_g_gradient(Nn,Ne,Nlocal,Nquadrature,Nstates)
-            !     call compute_nq_gradient(Nn,Ne,Nlocal,Nstates)
-
-            !     ! print *, nq_g(1)
-            !     ! print *, nq_g_gradient(1,:)
-            !     ! print *, psi_point_g(1,1)
-
-            !     ! call compute_nq_gradient(Nn,Ne,Nlocal)
-
-            !     ! call libxc_exchange_g_pbe(Ne,Nquadrature)
-            !     ! call libxc_correlation_g_pbe(Ne,Nquadrature)
-            !     call libxc_exchange_pbe(Nn)
-            !     call libxc_correlation_pbe(Nn)
-            !     ! call libxc_exchange_pbe(Nn)
-            !     ! call libxc_correlation_pbe(Nn)
-            !     ! call libxc_exchange_lda(Ne,Nquadrature)
-            !     ! call libxc_correlation_lda(Ne,Nquadrature)
-            ! ! else
-            ! !     print *, "LIBXC .mod file does not exist."
-            ! !     stop
-            ! ! end if
-
-            
-
-
-            ! V_total(1:Nn)=V_total(1:Nn)+vx_pbe_n(1:Nn)+vc_pbe_n(1:Nn)
-
-            ! ! print *,Vh(1),Vx(1),Vc(1)
-
-            ! ! exit
-
-
-            ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            ! !!!!!!!!!!!!!!!!  construct Hamiltonian  !!!!!!!!!!!!!!!!!!!!!!
-            ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-            ! if (it>0) then
-            !     do i=1,Nn
-            !         ! do ii=1,neigh_V(i)%size
-            !         !     call neigh_V(i)%deleteFirst()
-            !         ! enddo
-            !         call neigh_V(i)%initializeAB()
-            !     enddo
-            ! end if
-            
-            ! call set_linkedlistV(Ne,Nlocal,Nquadrature,2)
-
-            ! ii=0
-            ! do i=1,Nn
-            !     do l=1,neigh_V(i)%size
-            !         ii=ii+1
-            !         xy_V=neigh_V(i)%getab(l)
-            !         V(ii)=dble(xy_V(1))
-            !     enddo
-            ! enddo
-
-            ! end if !!! it>0
 
     end if !!! LDA/PBE 'if' ends
 
@@ -2396,11 +1480,7 @@ do while (.true.)
     !!!!!!!!!! build total Hamiltonian !!!!!!!!!!!
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    ! V=V+V_i
-
     H=0.5d0*A+V_i+V
-
-    ! print *,'toto'
 
     ! call MPI_BARRIER(MPI_COMM_WORLD ,code)
 
@@ -2409,7 +1489,6 @@ do while (.true.)
     !!!!!!!!    solve Kohn-Sham equation using FEAST    !!!!!!!!!!!
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    ! M0=2*Nstates+15!+20!+10!+40
     call feastinit(fpm)
     ! fpm(1)=1
     ! call pfeastinit(fpm,MPI_COMM_WORLD,nL3) !! for pfeast which provides solving each interval in parallel
@@ -2432,11 +1511,8 @@ do while (.true.)
 
 
     nq=0.0d0
-    ! nq_g=0.0d0
     do i=1,Nstates
         nq(:)=nq(:)+2.0d0*psi(:,i)**2
-        ! nq_g(:)=nq_g(:)+2.0d0*psi_gauss0(:,i)**2
-        ! psig(:,i)=psi(:,i)
     enddo
 
 
@@ -2475,7 +1551,7 @@ do while (.true.)
 
         if (xc0=='lda') then
 
-            print *,"-----  Orbital,  DFT_Ekinetic (eV) -----"
+            print *,"-----  Orbital,  E_kinetic (eV) -----"
 
             do i=1,Nstates+1
         
@@ -2486,7 +1562,7 @@ do while (.true.)
 
             enddo
 
-            print *,"-----  Orbital,  DFT_Eext (eV) -----"
+            print *,"-----  Orbital,  E_ext (eV) -----"
 
             do i=1,Nstates+1
         
@@ -2522,7 +1598,7 @@ do while (.true.)
             enddo
 
             ! print *,"DFT_Eh ---"
-            print *,"-----  Orbital,  DFT_Eh (eV) -----"
+            print *,"-----  Orbital,  E_h (eV) -----"
 
             do i=1,Nstates+1
         
@@ -2559,7 +1635,7 @@ do while (.true.)
             enddo
 
             ! print *,"DFT_Eh ---"
-            print *,"-----  Orbital,  DFT_Ex (eV) -----"
+            print *,"-----  Orbital,  E_x (eV) -----"
 
             do i=1,Nstates+1
         
@@ -2594,8 +1670,8 @@ do while (.true.)
                 enddo
             enddo
 
-            ! print *,"DFT_Eh ---"
-            print *,"-----  Orbital,  DFT_Ec (eV) -----"
+
+            print *,"-----  Orbital,      E_c (eV) -----"
 
             do i=1,Nstates+1
         
@@ -2608,168 +1684,7 @@ do while (.true.)
 
         else if (xc0=='pbe') then
 
-            print *,"-----  Orbital,  DFT_Ekinetic (eV) -----"
-
-            do i=1,Nstates+1
-        
-            call mkl_dcsrgemv('N',Nn,0.5d0*A,IA,JA,psi(:,i),snq2)
-            Eh=dot_product(snq2,psi(:,i))
-
-            print *,i,Eh*hartree
-
-            enddo
-
-            print *,"-----  Orbital,  DFT_Eext (eV) -----"
-
-            do i=1,Nstates+1
-        
-            call mkl_dcsrgemv('N',Nn,V_i,IA,JA,psi(:,i),snq2)
-            Eh=dot_product(snq2,psi(:,i))
-
-            print *,i,Eh*hartree
-
-            enddo
-
-            !!!!!!!!!! Eh !!!!!!!!!!
-
-            V_total(1:Nn)=Vh(1:Nn)!+vx_pbe_n(1:Nn)+vc_pbe_n(1:Nn)
-
-            if (it>0) then
-                do i=1,Nn
-                    ! do ii=1,neigh_V(i)%size
-                    !     call neigh_V(i)%deleteFirst()
-                    ! enddo
-                    call neigh_V(i)%initializeAB()
-                enddo
-            end if
             
-            call set_linkedlistV(Ne,Nlocal,Nquadrature,0)
-
-            ii=0
-            do i=1,Nn
-                do l=1,neigh_V(i)%size
-                    ii=ii+1
-                    xy_V=neigh_V(i)%getab(l)
-                    V(ii)=dble(xy_V(1))
-                enddo
-            enddo
-
-            ! print *,"DFT_Eh ---"
-            print *,"-----  Orbital,  DFT_Eh (eV) -----"
-
-            do i=1,Nstates+1
-        
-            call mkl_dcsrgemv('N',Nn,V,IA,JA,psi(:,i),snq2)
-            Eh=dot_product(snq2,psi(:,i))
-
-            print *,i,Eh*hartree
-
-            enddo
-
-            !!!!!!!!!! Ex !!!!!!!!!!
-
-            V_total(1:Nn)=vx_pbe_n(1:Nn)!+vc_pbe_n(1:Nn)
-
-            if (it>0) then
-                do i=1,Nn
-                    ! do ii=1,neigh_V(i)%size
-                    !     call neigh_V(i)%deleteFirst()
-                    ! enddo
-                    call neigh_V(i)%initializeAB()
-                enddo
-            end if
-            
-            call set_linkedlistV(Ne,Nlocal,Nquadrature,0)
-
-            ii=0
-            do i=1,Nn
-                do l=1,neigh_V(i)%size
-                    ii=ii+1
-                    xy_V=neigh_V(i)%getab(l)
-                    V(ii)=dble(xy_V(1))
-                enddo
-            enddo
-
-            ! print *,"DFT_Ex ---"
-            print *,"-----  Orbital,  DFT_Ex (eV) -----"
-
-            do i=1,Nstates+1
-        
-            call mkl_dcsrgemv('N',Nn,V,IA,JA,psi(:,i),snq2)
-            Eh=dot_product(snq2,psi(:,i))
-
-            print *,i,Eh*hartree
-
-            enddo
-
-            !!!!!!!!!! Ec !!!!!!!!!!
-
-            V_total(1:Nn)=vc_pbe_n(1:Nn)
-
-            if (it>0) then
-                do i=1,Nn
-                    ! do ii=1,neigh_V(i)%size
-                    !     call neigh_V(i)%deleteFirst()
-                    ! enddo
-                    call neigh_V(i)%initializeAB()
-                enddo
-            end if
-            
-            call set_linkedlistV(Ne,Nlocal,Nquadrature,0)
-
-            ii=0
-            do i=1,Nn
-                do l=1,neigh_V(i)%size
-                    ii=ii+1
-                    xy_V=neigh_V(i)%getab(l)
-                    V(ii)=dble(xy_V(1))
-                enddo
-            enddo
-
-            ! print *,"DFT_Ec ---"
-            print *,"-----  Orbital,  DFT_Ec (eV) -----"
-
-            do i=1,Nstates+1
-        
-            call mkl_dcsrgemv('N',Nn,V,IA,JA,psi(:,i),snq2)
-            Eh=dot_product(snq2,psi(:,i))
-
-            print *,i,Eh*hartree
-
-            enddo
-
-
-            !!!!!!!!!! Exc_pbe_g !!!!!!!!!!
-
-            do i=1,Nn
-                ! do ii=1,neigh_V(i)%size
-                !     call neigh_V(i)%deleteFirst()
-                ! enddo
-                call neigh_V(i)%initializeAB()
-            enddo
-            
-            call set_linkedlistV(Ne,Nlocal,Nquadrature,3)
-        
-            ii=0
-            do i=1,Nn
-                do l=1,neigh_V(i)%size
-                    ii=ii+1
-                    xy_V=neigh_V(i)%getab(l)
-                    V(ii)=dble(xy_V(1))
-                enddo
-            enddo
-
-            ! print *,"DFT_Ex+Ec pbe_g ---"
-            print *,"-----  Orbital,  DFT_Ex+Ec pbe_g (eV) -----"
-
-            do i=1,Nstates+1
-
-            call mkl_dcsrgemv('N',Nn,V,IA,JA,psi(:,i),snq2)
-            Eh=dot_product(snq2,psi(:,i))
-
-            print *,i,Eh*hartree
-
-            enddo
 
         end if !!! lda/pbe 
         
@@ -2782,20 +1697,12 @@ do while (.true.)
 
             print *,'--- solve more unoccupied states ---'
 
-            ! Nempty=1500!1375!Nn*1/2!-1!2000!Nn*1/2!2500!3279!1000!1496!1000!1496!250!1496!1000!1496
-            M0=2*Nstates+25!Nstates+Nempty+50!Nn!*2/3!3280!1497 ! 4  !10 !300
-            Emin=-40.0d0 ! -30.0d0 
-            Emax=0.25d0!324.0d0!2.0d7!2.0d4!2.0d7!26000.0d0 ! -0.05d0  !-0.05d0
+            M0=2*Nstates+25
+            ! Emin=-40.0d0
+            Emax=0.25d0
             deallocate(E,psi,res)
             allocate(E(M0), psi(Nn,M0), res(M0))
 
-
-            ! ! Nempty=1500!1375!Nn*1/2!-1!2000!Nn*1/2!2500!3279!1000!1496!1000!1496!250!1496!1000!1496
-            ! M0=Nn!Nstates+Nempty+50!Nn!*2/3!3280!1497 ! 4  !10 !300
-            ! Emin=-50.0d0 ! -30.0d0 
-            ! Emax=2.0d7!324.0d0!2.0d7!2.0d4!2.0d7!26000.0d0 ! -0.05d0  !-0.05d0
-            ! deallocate(E,psi,res)
-            ! allocate(E(M0), psi(Nn,M0), res(M0))
 
             call feastinit(fpm)
             call dfeast_scsrgv(UPLO, Nn, H, IA, JA, B, IA, JA, fpm, epsout, loop, Emin, Emax, M0, E, psi, M00, res, info)
@@ -2810,8 +1717,6 @@ do while (.true.)
             do i=1,M00
                 print *, i,E(i)*hartree
             enddo
-            
-            ! print *,M00,E(M00)!,E(1000)!,E_GW(2000)
 
         end if
 
@@ -2819,10 +1724,10 @@ do while (.true.)
 
             print *,'--- solve all unoccupied states ---'
 
-            ! Nempty=1500!1375!Nn*1/2!-1!2000!Nn*1/2!2500!3279!1000!1496!1000!1496!250!1496!1000!1496
-            M0=Nn!Nstates+Nempty+50!Nn!*2/3!3280!1497 ! 4  !10 !300
-            Emin=-50.0d0 ! -30.0d0 
-            Emax=2.0d7!324.0d0!2.0d7!2.0d4!2.0d7!26000.0d0 ! -0.05d0  !-0.05d0
+
+            M0=Nn
+            ! Emin=-50.0d0
+            Emax=2.0d7
             deallocate(E,psi,res)
             allocate(E(M0), psi(Nn,M0), res(M0))
 
@@ -2833,14 +1738,8 @@ do while (.true.)
                 print *,'FEAST_error info --------',info
                 stop
             end if
-    
-    
-            ! print *, '--- Energy states up to occupied (eV) ---'
-            ! do i=1,Nstates+1
-            !     print *, i,E_GW(i)*hartree
-            ! enddo
             
-            print *,M00,E(M00)!,E(1000)!,E_GW(2000)
+            ! print *,M00,E(M00)
 
         end if
 
@@ -2875,13 +1774,6 @@ do while (.true.)
         V=V+V_i
 
         H=0.5d0*A+V
-
-        ! print *,H(1:10)
-
-        ! stop
-
-
-        
 
         exit
     end if
@@ -2952,7 +1844,6 @@ print *, '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
         
         
         ni=nq
-        ! psii=psig
     
         if (it>0) then
             do i=1,Nstates
@@ -2971,12 +1862,8 @@ print *, '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         !!!!!!  compute_Hartree/Exchange/Correlation Potentials  !!!!!!
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    
-        ! call set_hf_BC(Nn,Nbc,Ne,Nquadrature,Nstates)
-        ! call hf_hartreepotential(Nn,Nbc)
 
         call set_BC(Nn,Nbc,Ne,Nquadrature,Nstates,2.0d0,hf_poisson_bc0,0,0)
-        ! call hartreepotential(Nn,Ne,Nquadrature,Nbc,0)
         call hartreepotential(Nn,Ne,Nquadrature,Nstates,Nbc,2.0d0,it,0)
     
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -3048,37 +1935,13 @@ print *, '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
         B_dense = S_dense
     
     
-        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        !!!!!!!!    solve Kohn-Sham equation using FEAST    !!!!!!!!!!!
-        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-        ! allocate(DSYEV_work(2*Nn))  !!!!! slightly overestimate the work space
-
-        ! !!!!! Query the optimal workspace
-        ! DSYEV_lwork = -1
-        ! call dsygv(1,'V','U',Nn,H_dense_psi,Nn,S_dense,Nn,E,DSYEV_work,DSYEV_lwork,info)
-        ! DSYEV_lwork = int(DSYEV_work(1))
-
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        !!!!!!!!    solve Hartree-Fock equation using DSYGV    !!!!!!!!!!!
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         
         !!!!! solve eigenvalue problem
         call dsygv(1,'V','U',Nn,H_dense_psi,Nn,B_dense,Nn,E_hf,DSYEV_work,DSYEV_lwork,info)
-
-        
-    
-        ! M0=2*Nstates+10
-        ! call feastinit(fpm)
-        ! ! fpm(1)=1
-        ! ! call pfeastinit(fpm,MPI_COMM_WORLD,nL3) !! for pfeast which provides solving each interval in parallel
-    
-        ! ! call dfeast_scsrgv(UPLO, Nn, H, IA, JA, B, IA, JA, fpm, epsout, loop, Emin, Emax, M0, E, psi, M00, res, info)
-    
-        ! call dfeast_sygv('F', Nn, H_dense, Nn, S_dense, Nn, fpm, epsout, loop, Emin, Emax, M0, E, psi, M00, res, info)
-    
-        ! ! if ((rank==0).and.(info/=0)) then
-        ! !     print *,'FEAST_error info --------',info
-        ! !     stop
-        ! ! end if
     
         print *, '--- Energy states up to occupied + LUMO (eV) ---'
         do i=1,Nstates+1
@@ -3096,16 +1959,7 @@ print *, '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
             nq(:)=nq(:)+2.0d0*H_dense_psi(:,i)**2
             psig(:,i)=H_dense_psi(:,i)
         enddo
-    
-        ! H_dense=H_dense-Vhfx_final
-    
-        ! do i=1,Nn
-        !     do l=1,neigh_V(i)%size
-        !         xy_V=neigh_V(i)%getab(l)
-        !         ii=neigh_AB(i)%get(l)
-        !         H_dense(i,ii)=H_dense(i,ii)-dble(xy_V(1))
-        !     enddo
-        ! enddo
+
         
         
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -3127,27 +1981,9 @@ print *, '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
         ! if (res_scf(it+1)<1.0d-3) then
             print *, 'Ground State Convergence Reached!!!'
 
-            do i=1,Nstates+40
-                print *, i,E_hf(i)*hartree
-            enddo
-
-            print *,'----'
-            print *,E_hf(100) *hartree
-            print *,E_hf(200) *hartree
-            print *,E_hf(300) *hartree
-            print *,E_hf(400) *hartree
-            print *,E_hf(500) *hartree
-            print *,E_hf(600) *hartree
-            print *,E_hf(700) *hartree
-            print *,E_hf(800) *hartree
-            print *,E_hf(900) *hartree
-            print *,E_hf(1000)*hartree
-            print *,E_hf(1100)*hartree
-            print *,E_hf(1200)*hartree
-            print *,E_hf(1300)*hartree
-            print *,E_hf(1400)*hartree
-            print *,E_hf(1500)*hartree
-            print *,'----'
+            ! do i=1,Nstates+40
+            !     print *, i,E_hf(i)*hartree
+            ! enddo
 
             deallocate(E,psi)
             allocate(E(Nn),psi(Nn,Nn))
@@ -3155,9 +1991,115 @@ print *, '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
             E(1:Nn)=E_hf(1:Nn)
             psi(:,1:Nn)=H_dense_psi(:,1:Nn)
 
+
+            !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        !!!!!!!!     compute Eh,Ex,Ec        !!!!!!!!
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        allocate(snq2(1:Nn))
+
+        print *,"=============================================="
+
+
+            print *,"-----  Orbital,  E_kinetic (eV) -----"
+
+            do i=1,Nstates+1
+        
+            call mkl_dcsrgemv('N',Nn,0.5d0*A,IA,JA,psi(:,i),snq2)
+            Eh=dot_product(snq2,psi(:,i))
+
+            print *,i,Eh*hartree
+
+            enddo
+
+            print *,"-----  Orbital,  E_ext (eV) -----"
+
+            do i=1,Nstates+1
+        
+            call mkl_dcsrgemv('N',Nn,V_i,IA,JA,psi(:,i),snq2)
+            Eh=dot_product(snq2,psi(:,i))
+
+            print *,i,Eh*hartree
+
+            enddo
+
+            !!!!!!!!!! Eh !!!!!!!!!!
+
+            V_total(1:Nn)=Vh(1:Nn)!+vx_pbe_n(1:Nn)+vc_pbe_n(1:Nn)
+
+            if (it>0) then
+                do i=1,Nn
+                    ! do ii=1,neigh_V(i)%size
+                    !     call neigh_V(i)%deleteFirst()
+                    ! enddo
+                    call neigh_V(i)%initializeAB()
+                enddo
+            end if
+            
+            call set_linkedlistV(Ne,Nlocal,Nquadrature,0)
+
+            ii=0
+            do i=1,Nn
+                do l=1,neigh_V(i)%size
+                    ii=ii+1
+                    xy_V=neigh_V(i)%getab(l)
+                    V(ii)=dble(xy_V(1))
+                enddo
+            enddo
+
+            print *,"-----  Orbital,  E_h (eV) -----"
+
+            do i=1,Nstates+1
+        
+            call mkl_dcsrgemv('N',Nn,V,IA,JA,psi(:,i),snq2)
+            Eh=dot_product(snq2,psi(:,i))
+
+            print *,i,Eh*hartree
+
+            enddo
+
+
+            !!!!!!!!!! Ex !!!!!!!!!!
+
+            print *,"-----  Orbital,  E_x (eV) -----"
+
+            do i=1,Nstates+1
+            
+                call DSYMM('L','L',Nn,1,1.0d0,Vhfx_final,Nn,psi(:,i),Nn,0.0d0,snq2,Nn)
+                
+                print *,i,dot_product(psi(:,i),snq2)*hartree
+            
+            enddo
+
+        
+        print *,"=============================================="
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             call psi_interpolation_HF(Ne,Nquadrature,Nstates,1)
             call set_BC(Nn,Nbc,Ne,Nquadrature,Nstates,2.0d0,hf_poisson_bc0,0,0)
-            ! call hartreepotential(Nn,Ne,Nquadrature,Nbc,0)
             call hartreepotential(Nn,Ne,Nquadrature,Nstates,Nbc,2.0d0,it,0)
             V_total(1:Nn) = Vh(1:Nn)!/2.0d0!+Vx(1:Nn)+Vc(1:Nn)!+Vi(1:Nn)
             if (it>0) then
@@ -3244,9 +2186,6 @@ print *, '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
                 end do
             enddo
     
-    
-            
-            
             value0=0.0d0
             !! solve linear system Ax=f
             psig(:,:)=0.0d0
@@ -3279,22 +2218,11 @@ print *, '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
     
     enddo  !!!!! end scf while loop
 
-    ! E(1:M0)=E_hf(1:M0)
-    ! psi(:,1:M0)=H_dense_psi(:,1:M0)
-
-    ! if (gw_sigma=='casida') then
-
-        
-
-    ! end if
-
-    
-
     deallocate(DSYEV_work)
 
 end if  !!!!! end DFT/HF selection
 
-if (meanfield=='cd') then
+if (gw_sigma=='cd') then
 
     Nempty = Nn-Nstates
 
@@ -3304,29 +2232,11 @@ else if (meanfield=='casida') then
     
 end if
 
-! open(12,file=trim(name)//'_p2_density.node',status='replace')
-! do i=1,Nn
-! write(12,*) H_dense_psi(i,1)
-! end do
-! close(12)
 
 
-! open(10,file=trim(name)//'_p2_dft.psi1',status='replace')
-! do i=1,Nn
-!     write(10,*) psi(i,1)
-! enddo
-! close(10)
-
-do k=1,Nstates+7!1
+do k=1,Nstates+1
 write (file_id, '(I0)') k
-! open (unit=20,file='CO.1_p2_nessie.psi'//trim(file_id),status='old')
-! open (unit=20,file='CO_0.6415.1_p2_nessie.psi'//trim(file_id),status='old')
-! open (unit=20,file='He.1_p2_nessie.psi'//trim(file_id),status='old')
-! open(unit=20,file=trim(name)//'_p2_dft.psi'//trim(file_id),status='replace')
 open(unit=20,file=trim(name)//'_'//trim(dgr_fem)//'_'//trim(meanfield)//'_1.psi'//trim(file_id),status='replace')
-! open (unit=20,file='LiH.1_p2_nessie.psi'//trim(file_id),status='old')
-! open (unit=20,file='H2.1_p2_nessie.psi'//trim(file_id),status='old')
-! open (unit=20,file='H2O.1_p2_nessie.psi'//trim(file_id),status='old')
 do i=1,Nn
     write(20,*) psi(i,k)
 enddo
@@ -3481,14 +2391,11 @@ print *, "*** allocate memory for GW calculations ***"
 
 if (gw_sigma=='cd') then
 
-    ! allocate(psi_point_g(1:Ne*Nquadrature,1:Nstates))
     call psi_interpolation(Ne,Nquadrature,Nstates,1,degree)
 
 else if (gw_sigma=='casida') then
 
-    ! allocate(psi_point_g(1:Ne*Nquadrature,1:Nn))
     call psi_interpolation(Ne,Nquadrature,Nn,1,degree)
-    ! call psi_interpolation(Ne,Nquadrature,Nstates,1,degree)
 
 end if
 
@@ -3497,20 +2404,12 @@ end if
 
 print *, "*** construct bare Coulomb potential -- 1/|r-r'| ***"
 
-! allocate(coulombmatrix00(Nn,Ne*Nquadrature))
-! call compute_coulombmatrix00(Nn,Ne,Nquadrature)
 allocate(v_kernel(Ne*Nquadrature,Nn))
 call construct_v_kernel(Nn,Ne,Nquadrature)
-
-! do i=1,Nn
-!     coulombmatrix00(i,:)=coulombmatrix00(i,:)*volumegweight(:)
-! enddo
 
 do i=1,Nn
     v_kernel(:,i)=v_kernel(:,i)*volumegweight(:)
 enddo
-
-! allocate(v_kernel_transpose(Ne*Nquadrature,Nn))
 
 allocate(v00(Nn,Nn))
 call mkl_dcsrmm('T',Ne*Nquadrature,Nn,Nn,1.0d0,matdescra,NnToNg,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
@@ -3543,10 +2442,6 @@ end if
 allocate(snq1(Nn))
 
 print *,"=============================================="
-! print *,'Exchange orbital energy -- <psi_i|Sigma_x|psi_i>'
-! print *,' '
-
-
 print *,"----  Orbital,  GW <psi|Sigma_x|psi> (eV) ----"
 
 do i=1,Nstates+1
@@ -3561,23 +2456,6 @@ print *,i,dot_product(psi(:,orbital),snq1)*hartree
 enddo
 
 print *,"=============================================="
-
-! stop
-
-
-
-
-
-! 5000 continue
-
-! deallocate(v_kernel)
-! deallocate(v00)
-! deallocate(Vhfx_GW)
-
-! deallocate(NNmatrix_temp02)
-! deallocate(psi_point_g)
-
-! deallocate(snq1)
 
 deallocate(volume)
 
@@ -3626,491 +2504,6 @@ deallocate(volume)
 if (gw_sigma=='cd') then
 
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!      Set energy guess of GW Sigma     !!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    
-
-print *,'*** compute the energy grid points ***'
-
-N_energy = cd_N_grid0
-
-allocate(E_guess(N_energy))
-
-E_guess_min = cd_Emin_grid0/hartree
-E_guess_max = cd_Emax_grid0/hartree
-
-do i=1,N_energy
-    E_guess(i)=E_guess_min+(i-1)*(E_guess_max-E_guess_min)/(N_energy-1)
-enddo
-
-! ! E_guess(1)=-22.9d0/hartree
-! E_guess(1)=-21.9d0/hartree
-! E_guess(2)=-21.7d0/hartree
-! E_guess(3)=-21.5d0/hartree
-! E_guess(4)=  2.0d0/hartree
-! E_guess(5)=  2.2d0/hartree
-! E_guess(6)=  2.35d0/hartree
-
-
-
-
-
-allocate(E_Sigma(1:size(E_guess)*2))
-
-
-
-
-! allocate(E_guess(1))
-! ! E_guess=(/-2.5d0,-2.0d0,-1.5d0,-1.0d0,-0.95d0,-0.9d0,-0.85d0,-0.8d0,-0.75d0,-0.7d0,-0.65d0,-0.6d0,-0.5d0,-0.4d0,-0.853d0/)
-! ! E_guess=(/-1.89d0,-1.72d0,-1.20d0/)
-! ! E_guess=(/-1.2d0,-0.878308482d0,-0.575938296056237d0-0.01d0,-0.575938296056237d0+0.01d0/)
-! ! E_guess=(/-0.878308482d0/)
-! ! E_guess=(/-38.5d0/hartree,-33.0d0/hartree,-28.0d0/hartree,-23.0d0/hartree,&
-! !                 -18.0d0/hartree,-14.8d0/hartree,-13.8d0/hartree,-13.6d0/hartree/)
-! ! E_guess=(/-23.84d0/hartree/)
-! ! E_guess=(/-0.545727237d0,-0.536539909d0/)
-! ! E_guess=(/(E(1)*hartree-0.1)/hartree/)
-! E_guess=(/E(1)-0.003d0/)!(/-23.84/hartree/)!(/-16.05/hartree/)
-! allocate(E_Sigma(1:size(E_guess)))
-
-
-
-
-print *,E(1:Nstates)
-print *,'toto'
-print *,E_guess(:)
-
-
-Nguess_complex=N_energy!40
-allocate(E_guess_complex(1:Nguess_complex))
-
-print *,pi
-
-do ll=1,Nguess_complex
-    E_guess_complex(ll)%re=-23.5d0/hartree-28.0d0/hartree*dcos(dble((ll-1))/Nguess_complex*2*pi)
-    E_guess_complex(ll)%im=28.0d0/hartree*dsin(dble((ll-1))/Nguess_complex*2*pi)
-    ! E_guess_complex(ll)%re=E_guess(ll)
-    ! E_guess_complex(ll)%im=0.2
-enddo
-
-do ll=1,Nguess_complex
-    E_guess_complex(ll)%re=-23.5d0/hartree-28.0d0/hartree*dcos(dble((ll-1))/Nguess_complex*2*pi)
-    E_guess_complex(ll)%im=28.0d0/hartree*dsin(dble((ll-1))/Nguess_complex*2*pi)
-enddo
-
-allocate(E_Sigma_complex(1:size(E_guess_complex)))
-
-
-print *,'================'
-do i=1,size(E_guess_complex)
-    print *,E_guess_complex(i)
-enddo
-print *,'================'
-
-
-! stop
-
-
-
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!  compute energy integral gauus nodes  !!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-print *,'*** compute imaginary axis energy integral gauus nodes ***'
-
-eta_omega1=0.001d0!0.000000000000001d0
-eta_omega2=0.001d0!0.000001d0
-eta_time =0.01d0
-
-
-call gaussian_integral_1D
-
-
-
-Nquadrature1D=9!19!15!9
-Nquadrature1D_range=1
-
-allocate(gpoint_1D(1:Nquadrature1D))
-allocate(gweight_1D(1:Nquadrature1D))
-
-gpoint_1D(:)=gpoint9_1D(:)
-gweight_1D(:)=gweight9_1D(:)
-
-allocate(omega_range(1:Nquadrature1D,1:Nquadrature1D_range))
-allocate(omega_min(1:Nquadrature1D_range))
-allocate(omega_max(1:Nquadrature1D_range))
-
-omega_min(1)=0.0d0
-omega_max(1)=1.0d3!5.0d4
-
-allocate(Xi_range(1:Nquadrature1D,1:Nquadrature1D_range))
-allocate(Xi_min(1:Nquadrature1D_range))
-allocate(Xi_max(1:Nquadrature1D_range))
-
-Xi_min(1)=0.0d0
-Xi_max(1)=1.0d0
-
-alpha_gw=0.2d0!0.4d0!0.2d0
-
-do ii=1,Nquadrature1D_range
-    do i=1,Nquadrature1D
-        ! omega_range(i,ii)=(omega_max(ii)-omega_min(ii))/2.0d0*gpoint_1D(i)+(omega_max(ii)+omega_min(ii))/2.0d0
-        ! print *,omega_range(i,ii)
-        Xi_range(i,ii)=(Xi_max(ii)-Xi_min(ii))/2.0d0*gpoint_1D(i)+(Xi_max(ii)+Xi_min(ii))/2.0d0
-        ! omega_range(i,ii)=Xi_range(i,ii)/(1.0d0-Xi_range(i,ii))
-        ! omega_range(i,ii)=tan(pi/2.0d0*Xi_range(i,ii))*gamma
-        omega_range(i,ii)=exp(alpha_gw*Xi_range(i,ii)/(1.0d0-Xi_range(i,ii)))-1.0d0
-        print *,Xi_range(i,ii),omega_range(i,ii)
-    enddo
-enddo
-
-
-print *,"+++++++++++++++++"
-
-
-
-
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-
-
-allocate(IdentityMatrix(1:Nn,1:Nn))
-IdentityMatrix(:,:)=cmplx(0.0d0,0.0d0,8)
-do i=1,Nn
-    IdentityMatrix(i,i)=cmplx(1.0d0,0.0d0,8)
-enddo
-
-
-
-allocate(IdentityMatrix_real(1:Nn,1:Nn))
-IdentityMatrix_real(:,:)=0.0d0
-do i=1,Nn
-    IdentityMatrix_real(i,i)=1.0d0
-enddo
-
-
-
-
-if ((cd_method0=='gs').or.(cd_method0=='spectrum')) then
-
-    print *,'--------------------'
-
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !!!!!!!!!!!!!!!!!!!!! FORMAT CONVERSION TO CSR-UPPER for PARDISO !!!!!!!!!!!!!!!
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    nnzA=neigh_size/2+Nn ! slightly overestimated
-    allocate(uisa(Nn+1))
-    allocate(ujsa(nnzA))
-    allocate(usa(nnzA))
-    allocate(usb(nnzA))
-    call dcsr_convert_upper(Nn,UPLO,H,IA,JA,usa,uisa,ujsa)
-    call dcsr_convert_upper(Nn,UPLO,B,IA,JA,usb,uisa,ujsa)
-    nnza=uisa(Nn+1)-1 ! by definition
-
-
-    allocate(usa_dft(nnzA))
-    call dcsr_convert_upper(Nn,UPLO,H_dft,IA,JA,usa_dft,uisa,ujsa)
-    allocate(psaz_dft(nnza))
-
-
-
-    allocate(bwork1_vectemp1(1:Nn,1:1))
-    allocate(bwork1_vectemp2(1:Ne*Nquadrature,1:1))
-    allocate(bwork1_vectemp3(1:Nn,1:1))
-
-
-    allocate(gw_W_complex(1:Nn,1:Nn,Nquadrature1D*Nquadrature1D_range))
-
-    
-
-    
-
-
-    ! allocate(SigmaY(1:Nn,1:1),Y_primed(1:Nn,1:1))
-
-
-    print *,'*** compute dynamically screened Coulomb interaction - W ***'
-
-
-    call compute_gw_W_CD(Nn,Nstates,Nempty,E(1:Nstates),omega_range(:,:),Nquadrature1D_range,Nquadrature1D,nnza,Ne,Nquadrature&
-    ,E_guess_complex(1),meanfield,cd_Hadamard0)
-
-
- 
-    ! allocate(quaternion(4*Nn))
-    ! allocate(quaternion_A(16*neigh_size))
-    ! allocate(quaternion_IA(4*Nn+1))
-    ! allocate(quaternion_JA(16*neigh_size))
-
-    ! call build_quaternionmatrix(Nn)
-
-    ! ii=0
-    ! do i=1,4*Nn
-    !     quaternion_IA(i)=ii+1
-    !     do l=1,quaternion(i)%size
-    !         ii=ii+1
-    !         quaternion_JA(ii)=quaternion(i)%get(l)
-    !     enddo
-    ! enddo
-
-    ! quaternion_IA(4*Nn+1)=16*neigh_size+1
-
-
-    allocate(IdenMat_quaternion(4*Nn,Nn))
-
-    IdenMat_quaternion=0.0d0
-    do i=1,Nn
-        IdenMat_quaternion((i-1)*4+1,i)=1.0d0
-        ! IdenMat_quaternion((i-1)*4+3,i)=1.0d0!sqrt(1.0d0/3.0d0)
-        ! IdenMat_quaternion((i-1)*4+4,i)=sqrt(1.0d0/3.0d0)
-    enddo
-
-    allocate(G_quaternion(4*Nn,Nn))
-
-    ! allocate(NNmatrix_temp02(Nn,Nn))
-    ! allocate(NnNgtemp(Nn,Ne*Nquadrature))
-
-
-
-    if (cd_method0=='spectrum') then
-
-
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !!!!! spectrum method !!!!!
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-        if (cd_Hadamard0=='no') then
-
-    allocate(NNmatrix_temp005(Nn,Nn))
-    allocate(NNmatrix_temp006(Nn,Nn))
-
-    allocate(gw_Sigma_complex(1:Nn,1:Nn))
-    allocate(gw_Sigma_complex_poles(1:Nn,1:Nn))
-
-
-    do m=1,Nguess_complex
-    
-call compute_gw_Sigma_CD_imagintegral(Nn,Nstates,Nempty,E_guess(m)*j_real,E,omega_range,Xi_range,Nquadrature1D_range,Nquadrature1D&
-        ,1,psi(:,Nstates)*j_real,nnza,Ne,Nquadrature,meanfield,cd_Hadamard0)
-    
-call compute_gw_Sigma_CD_poles_mtx(Nn,Nstates,Nempty,E_guess(m)*j_real,E,M00,1,nnza,Ne,Nquadrature,meanfield,cd_Hadamard0)
-
-
-
-call mkl_zcsrmm('N',Nn,Nn,Nn,ZONE,matdescrb,B*j_real,JA,IA_pntrb,IA_pntre,dble(gw_Sigma_complex+gw_Sigma_complex_poles)*j_real,Nn&
-            ,ZZERO,NNmatrix_temp005,Nn)
-
-call mkl_zcsrmm('N',Nn,Nn,Nn,ZONE,matdescrb,B*j_real,JA,IA_pntrb,IA_pntre,transpose(NNmatrix_temp005),Nn&
-            ,ZZERO,NNmatrix_temp006,Nn)
-
-        NNmatrix_temp005=E_guess(m)*j_real*S_dense-H_dense-Vhfx_final_GW-NNmatrix_temp006
-
-        NNmatrix_temp006=dense_matrix_inverse(Nn,NNmatrix_temp005)
-
-        ! do k=1,5
-        !     print *,dble(NNmatrix_temp006(k,k))
-        ! enddo
-
-        vtemp=0.0d0
-        do k=1,Nn
-            vtemp=vtemp+abs(dble(NNmatrix_temp006(k,k)))
-            ! vtemp=vtemp+dble(NNmatrix_temp006(k,k))
-        enddo
-
-        print *,E_guess(m)*hartree,vtemp
-
-    enddo
-
-
-    deallocate(NNmatrix_temp005)
-    deallocate(NNmatrix_temp006)
-
-
-        else if (cd_Hadamard0=='yes') then
-
-
-    allocate(NNmatrix_temp02(Nn,Nn))
-    allocate(NNmatrix_temp005(Nn,Nn))
-    allocate(NNmatrix_temp006(Nn,Nn))
-
-    allocate(NnNgtemp(Nn,Ne*Nquadrature))
-
-    allocate(gw_Sigma_g(1:Ne*Nquadrature,1:Ne*Nquadrature))
-    allocate(gw_Sigma_g_poles(1:Ne*Nquadrature,1:Ne*Nquadrature))
-
-
-    do m=1,Nguess_complex
-    
-call compute_gw_Sigma_CD_imagintegral(Nn,Nstates,Nempty,E_guess(m)*j_real,E,omega_range,Xi_range,Nquadrature1D_range,Nquadrature1D&
-        ,1,psi(:,Nstates)*j_real,nnza,Ne,Nquadrature,meanfield,cd_Hadamard0)
-    
-call compute_gw_Sigma_CD_poles_mtx(Nn,Nstates,Nempty,E_guess(m)*j_real,E,M00,1,nnza,Ne,Nquadrature,meanfield,cd_Hadamard0)
-
-
-call outer_product('ge',volumegweight(:),volumegweight(:),NgNgtemp)
-    gw_Sigma_g=(gw_Sigma_g+gw_Sigma_g_poles)*NgNgtemp!outer_product(volumegweight(:),volumegweight(:))
-
-    call mkl_dcsrmm('T',Ne*Nquadrature,Ne*Nquadrature,Nn,1.0d0,matdescra,NnToNg,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
-    ,dble(gw_Sigma_g),Ne*Nquadrature,0.0d0,NnNgtemp,Nn)
-
-
-    call mkl_dcsrmm('T',Ne*Nquadrature,Nn,Nn,1.0d0,matdescra,NnToNg,NnToNg_JA,NnToNg_IA_pntrb,NnToNg_IA_pntre&
-    ,transpose(NnNgtemp),Ne*Nquadrature,0.0d0,NNmatrix_temp02,Nn)
-
-
-        NNmatrix_temp005=E_guess(m)*j_real*S_dense-H_dense-Vhfx_final_GW-NNmatrix_temp02
-
-        NNmatrix_temp006=dense_matrix_inverse(Nn,NNmatrix_temp005)
-
-        ! do k=1,5
-        !     print *,dble(NNmatrix_temp006(k,k))
-        ! enddo
-
-        vtemp=0.0d0
-        do k=1,Nn
-            vtemp=vtemp+abs(dble(NNmatrix_temp006(k,k)))
-        enddo
-
-        print *,E_guess(m)*hartree,vtemp
-
-
-    enddo
-
-    deallocate(NNmatrix_temp02)
-    deallocate(NNmatrix_temp005)
-    deallocate(NNmatrix_temp006)
-
-    deallocate(NnNgtemp)
-
-        end if  !!! hadamard
-
-
-
-    else if (cd_method0=='gs') then
-
-        if (cd_Hadamard0=='no') then
-
-    allocate(gw_Sigma_complex(1:Nn,1:Nn))
-    allocate(gw_Sigma_complex_poles(1:Nn,1:Nn))
-
-    do m=1,Nguess_complex
-
-call compute_gw_Sigma_CD_imagintegral(Nn,Nstates,Nempty,E_guess(m)*j_real,E,omega_range,Xi_range,Nquadrature1D_range,Nquadrature1D&
-        ,1,psi(:,Nstates)*j_real,nnza,Ne,Nquadrature,meanfield,cd_Hadamard0)
-    
-call compute_gw_Sigma_CD_poles_mtx(Nn,Nstates,Nempty,E_guess(m)*j_real,E,M00,1,nnza,Ne,Nquadrature,meanfield,cd_Hadamard0)
-
-
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !!!!! approximated Hadamard product !!!!!
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-    call mkl_zcsrmm('N',Nn,1,Nn,(1.0d0,0.0d0),matdescrb,B*j_real,JA,IA_pntrb,IA_pntre,psi(:,cd_orbital0)*j_real,Nn&
-    ,(0.0d0,0.0d0),bwork1_vectemp1(:,1),Nn)
-    call ZSYMM('L','L',Nn,1,ZONE,dble(gw_Sigma_complex+gw_Sigma_complex_poles)*j_real&
-    ,Nn,bwork1_vectemp1(:,1),Nn,ZZERO,bwork1_vectemp3(:,1),Nn)
-    call mkl_zcsrmm('N',Nn,1,Nn,(1.0d0,0.0d0),matdescrb,B*j_real,JA,IA_pntrb,IA_pntre,bwork1_vectemp3(:,1),Nn&
-    ,(0.0d0,0.0d0),bwork1_vectemp1(:,1),Nn)
-
-    print *,dot_product(psi(:,cd_orbital0)*j_real,bwork1_vectemp1(:,1))
-
-    enddo
-
-        else if (cd_Hadamard0=='yes') then
-
-    allocate(gw_Sigma_g(1:Ne*Nquadrature,1:Ne*Nquadrature))
-    allocate(gw_Sigma_g_poles(1:Ne*Nquadrature,1:Ne*Nquadrature))
-
-
-    do m=1,Nguess_complex
-
-call compute_gw_Sigma_CD_imagintegral(Nn,Nstates,Nempty,E_guess(m)*j_real,E,omega_range,Xi_range,Nquadrature1D_range,Nquadrature1D&
-        ,1,psi(:,Nstates)*j_real,nnza,Ne,Nquadrature,meanfield,cd_Hadamard0)
-    
-call compute_gw_Sigma_CD_poles_mtx(Nn,Nstates,Nempty,E_guess(m)*j_real,E,M00,1,nnza,Ne,Nquadrature,meanfield,cd_Hadamard0)
-
-
-
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !!!!! Hadamard product !!!!!
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-    call ZSYMM('L','L',Ne*Nquadrature,1,ZONE,dble(gw_Sigma_g+gw_Sigma_g_poles)*j_real&
-    ,Ne*Nquadrature,psi_point_g(:,cd_orbital0)*volumegweight(:)*j_real,Ne*Nquadrature,ZZERO,bwork1_vectemp2(:,1),Ne*Nquadrature)
-
-
-
-    print *,dot_product(psi_point_g(:,cd_orbital0)*volumegweight(:)*j_real,bwork1_vectemp2(:,1))
-
-    enddo
-
-        end if !!! hadamard
-
-
-    
-
-    end if
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-else if (cd_method0=='nlfeast') then
-
-
-print *,'The upcoming version will include the release of the FEAST nonlinear eigenvalue algorithm.'
-
-stop
-
-
-
-
-
-
-end if !!! end cd_method0 selection
 
 
 
@@ -4118,15 +2511,11 @@ else if (gw_sigma=='casida') then
 
 
 
-
-    ! go to 9999
-
-
     if (casida_method0=='gs') then
 
         print *,'*** compute Casida Kx ***'
 
-    Nempty=casida_N_empty0!1000!4000!1500!6500!1500!3000!1500!Nn-Nstates!1000!1500!3000!1500!1000!1500
+    Nempty=casida_N_empty0
 
 
 allocate(psi_ia_g_real(Ne*Nquadrature,Nstates*Nempty))
@@ -4144,14 +2533,11 @@ enddo
 
 
 allocate(NgNntemp(1:Ne*Nquadrature,1:Nstates*Nempty))
-! allocate(NnNgtemp(1:Nn,1:Nstates*Nempty))
-
 allocate(casida_Kx(1:Nstates*Nempty,1:Nstates*Nempty))
 allocate(casida_R(1:Nstates*Nempty))
 allocate(casida_Xs(1:Nstates*Nempty,1:Nstates*Nempty))
 allocate(casida_omega(1:Nstates*Nempty))
 allocate(casida_R_half(1:Nstates*Nempty))
-! allocate(casida_V(1:Nstates*Nempty))
 allocate(casida_Kxnj(1:Nempty,1:Nstates*Nempty))
 allocate(casida_Kxnj_occupied(1:Nstates,1:Nstates*Nempty))
 allocate(casida_cvomega(1:Nstates*Nempty))
@@ -4161,8 +2547,7 @@ allocate(casida_Ys(1:Nstates*Nempty,1:Nstates*Nempty))
 
 allocate(NNmatrix_temp12(1:Nn,1:Nstates*Nempty))
 allocate(NNmatrix_temp13(1:Nn,1:Nstates*Nempty))
-! allocate(NNmatrix_temp14(1:Nstates*Nempty,1:Nstates*Nempty))
-! allocate(vector_temp00(1:Nn))
+
 
 
 
@@ -4185,23 +2570,6 @@ print *,'*** solve Casida eigenvalue equation  ***'
 
 call solve_Casida_matrix(Nstates,Nempty)
 
-! stop
-
-
-! do i=1,50
-!     print *,casida_omega(i)
-! enddo
-
-! stop
-
-
-! do k=1,Nstates
-!     do kk=1,Nempty
-!         casida_cvomega((k-1)*Nempty+kk)=sqrt(E(Nstates+kk)-E(k))
-!     enddo
-! enddo
-
-
 
 
 
@@ -4209,15 +2577,12 @@ call solve_Casida_matrix(Nstates,Nempty)
 !!!!!!!!! allocate for 'compute_gw_Sigma_Casida'/'compute_gw_Casida_Pi'/'compute_gw_casida_Ec'/'compute_gw_casida_Ec_complex' !!!
 
 
-Nguess_complex=casida_N_grid0!20!30!20
-! allocate(E_guess_complex(1:Nguess_complex))
+Nguess_complex=casida_N_grid0
 allocate(E_guess_complex_HOMO(1:Nguess_complex))
 allocate(E_guess_complex_LUMO(1:Nguess_complex))
 allocate(casida_Ec(1:Nguess_complex))
-! allocate(casida_Ec_HOMO(1:Nguess_complex))
-! allocate(casida_Ec_LUMO(1:Nguess_complex))
 
-print *,pi
+
 
 do ll=1,Nguess_complex
 
@@ -4228,22 +2593,6 @@ do ll=1,Nguess_complex
                                 /(Nguess_complex-1)
 
 enddo
-
-
-print *,'****  1st energy grid  ****'
-
-do m=1,Nguess_complex
-    print *,E_guess_complex_HOMO(m)*hartree
-enddo
-
-print *,'****  2nd energy grid  ****'
-
-do m=1,Nguess_complex
-    print *,E_guess_complex_LUMO(m)*hartree
-enddo
-
-
-
 
 
 
@@ -4266,7 +2615,7 @@ allocate(psi_n_g_real(Ne*Nquadrature,Nempty))
 allocate(psi_n_g_real_occupied(Ne*Nquadrature,Nstates))
 
 
-orbital = casida_orbital10!1!Nstates!1!Nstates!HOMO_state!+1
+orbital = casida_orbital10
 
 do kk=1,Nempty
     psi_n_g_real(:,kk)=psi_point_g(:,orbital)*psi_point_g(:,Nstates+kk)!*volumegweight(:)
@@ -4286,24 +2635,24 @@ call compute_gw_Casida_Kxnj(Nn,Ne,Nquadrature,Nstates,Nempty)
 
 
 ! stop
-
-print *,'*** solve',casida_orbital10,'orbital -- Sigma_c  ***'
+print *,'=========='
+print *,'*** solve orbital',casida_orbital10,' -- Sigma_c  ***'
 
 call compute_gw_casida_Ec_complex(E_guess_complex_HOMO,E,Nguess_complex,Nstates,Nempty)
-! call compute_gw_casida_Ec_complex_2(E_guess_complex,E,size(E_guess_complex),Nstates,Nempty)
 
 
 
-print *,'=========='
+
+print *,'  energy grid (eV)','     GW <psi|Sigma_c|psi> (eV)'
 do m=1,Nguess_complex
-    print *,casida_Ec(m)*hartree
+    print *,dble(E_guess_complex_HOMO(m))*hartree,dble(casida_Ec(m))*hartree
 enddo
 
 
 
 
 
-orbital = casida_orbital20!1!Nstates!1!Nstates!HOMO_state!+1
+orbital = casida_orbital20
 
 do kk=1,Nempty
     psi_n_g_real(:,kk)=psi_point_g(:,orbital)*psi_point_g(:,Nstates+kk)!*volumegweight(:)
@@ -4322,18 +2671,15 @@ call compute_gw_Casida_Kxnj(Nn,Ne,Nquadrature,Nstates,Nempty)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
-! stop
-
-print *,'*** solve',casida_orbital20,'orbital -- Sigma_c  ***'
+print *,'*** solve orbital',casida_orbital20,' -- Sigma_c  ***'
 
 call compute_gw_casida_Ec_complex(E_guess_complex_LUMO,E,Nguess_complex,Nstates,Nempty)
-! call compute_gw_casida_Ec_complex_2(E_guess_complex,E,size(E_guess_complex),Nstates,Nempty)
 
 
 
-print *,'=========='
+print *,'  energy grid (eV)','     GW <psi|Sigma_c|psi> (eV)'
 do m=1,Nguess_complex
-    print *,casida_Ec(m)*hartree
+    print *,dble(E_guess_complex_LUMO(m))*hartree,dble(casida_Ec(m))*hartree
 enddo
 
 
@@ -4420,77 +2766,6 @@ end if !!!! end selection CD/Casida
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!                    GW ends                     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-!!!! since orbitals and energy states are obtained, then total energy and other quatities can also be calculated.
-
-
-    print *,">>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<"
-    print *," ---------------------------------------- "
-    print *,"|  Post-processing is to be continued..  |"
-    print *,"|                                        |"
-    print *,"|                                        |"
-    print *,"|               Stay Tuned!              |"
-    print *,"|                                        |"
-    print *," ---------------------------------------- "
 
 
 

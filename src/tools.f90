@@ -160,6 +160,7 @@ module tools
     character(len=3) :: xc0
     integer :: ks_M00, ks_poisson_bc0
     double precision :: ks_Emin0,ks_Emax0,ks_alpha0,ks_eps0
+    double precision :: hf_alpha0,hf_eps0
     integer :: hf_poisson_bc0
 
     character(len=8) :: cd_method0,cd_Hadamard0
@@ -250,17 +251,18 @@ module tools
 
 
       !!! PARAMETER Hartree-Fock !!!
+      double precision :: hf_alpha,hf_eps
       integer :: hf_poisson_bc                        !Option: 1 for integral, 0 for neutral
-      namelist /HartreeFock/ hf_poisson_bc
+      namelist /HartreeFock/ hf_poisson_bc,hf_alpha,hf_eps
 
 
-      !!! PARAMETER Contour-Deformation approach !!!
-      character(len=25) :: cd_method,cd_Hadamard                         !Options: 'gs,spectrum,nlfeast'
-      integer :: cd_N_grid,cd_M0,cd_fpm1,cd_fpm3,cd_fpm8,cd_fpm45,cd_igorbital,cd_orbital
-      double precision :: cd_Emin_grid,cd_Emax_grid,cd_r
-      complex(kind=(kind(1.0d0))) :: cd_Emid
-      namelist /ContourDeformation/ cd_method,cd_Hadamard,cd_N_grid,cd_M0,cd_fpm1,cd_fpm3,cd_fpm8,cd_fpm45,cd_igorbital&
-      ,cd_Emin_grid,cd_Emax_grid,cd_r,cd_Emid,cd_orbital
+      ! !!! PARAMETER Contour-Deformation approach !!!
+      ! character(len=25) :: cd_method,cd_Hadamard                         !Options: 'gs,spectrum,nlfeast'
+      ! integer :: cd_N_grid,cd_M0,cd_fpm1,cd_fpm3,cd_fpm8,cd_fpm45,cd_igorbital,cd_orbital
+      ! double precision :: cd_Emin_grid,cd_Emax_grid,cd_r
+      ! complex(kind=(kind(1.0d0))) :: cd_Emid
+      ! namelist /ContourDeformation/ cd_method,cd_Hadamard,cd_N_grid,cd_M0,cd_fpm1,cd_fpm3,cd_fpm8,cd_fpm45,cd_igorbital&
+      ! ,cd_Emin_grid,cd_Emax_grid,cd_r,cd_Emid,cd_orbital
 
 
       !!! PARAMETER Fully-Analytic approach !!!
@@ -269,7 +271,7 @@ module tools
       integer :: casida_orbital1,casida_orbital2
       double precision :: casida_Emin_grid1,casida_Emax_grid1,casida_Emin_grid2,casida_Emax_grid2,casida_r
       complex(kind=(kind(1.0d0))) :: casida_Emid
-      namelist /FullyAnalytic/ casida_method,casida_N_empty,casida_N_grid,casida_M0,casida_fpm1,casida_fpm3,casida_fpm8&
+      namelist /G0W0_casida_FullyAnalytic/ casida_method,casida_N_empty,casida_N_grid,casida_M0,casida_fpm1,casida_fpm3,casida_fpm8&
       ,casida_fpm45,casida_igorbital,casida_Emin_grid1,casida_Emax_grid1,casida_r,casida_Emid,casida_orbital1&
       ,casida_orbital2,casida_Emin_grid2,casida_Emax_grid2
 
@@ -282,9 +284,7 @@ module tools
         if (rc /= 0) print *,"Error: invalid Namelist format for DFT"
         read (unit=10, nml=HartreeFock, iostat=rc)
         if (rc /= 0) print *,"Error: invalid Namelist format for HartreeFock"
-        read (unit=10, nml=ContourDeformation, iostat=rc)
-        if (rc /= 0) print *,"Error: invalid Namelist format for ContourDeformation"
-        read (unit=10, nml=FullyAnalytic, iostat=rc)
+        read (unit=10, nml=G0W0_casida_FullyAnalytic, iostat=rc)
         if (rc /= 0) print *,"Error: invalid Namelist format for FullyAnalytic"
       close(10)
 
@@ -307,23 +307,25 @@ module tools
           ks_eps0=ks_eps
 
           !!! HF !!!
+          hf_eps0=hf_eps
+          hf_alpha0=hf_alpha
           hf_poisson_bc0=hf_poisson_bc
 
-          !!! CD !!!
-          cd_method0=trim(cd_method)
-          cd_Hadamard0=trim(cd_Hadamard)
-          cd_N_grid0=cd_N_grid
-          cd_orbital0=cd_orbital
-          cd_Emin_grid0=cd_Emin_grid
-          cd_Emax_grid0=cd_Emax_grid
-          cd_M00=cd_M0
-          cd_Emid0=cd_Emid
-          cd_r0=cd_r
-          cd_fpm10=cd_fpm1
-          cd_fpm30=cd_fpm3
-          cd_fpm80=cd_fpm8
-          cd_fpm450=cd_fpm45
-          cd_igorbital0=cd_igorbital
+          ! !!! CD !!!
+          ! cd_method0=trim(cd_method)
+          ! cd_Hadamard0=trim(cd_Hadamard)
+          ! cd_N_grid0=cd_N_grid
+          ! cd_orbital0=cd_orbital
+          ! cd_Emin_grid0=cd_Emin_grid
+          ! cd_Emax_grid0=cd_Emax_grid
+          ! cd_M00=cd_M0
+          ! cd_Emid0=cd_Emid
+          ! cd_r0=cd_r
+          ! cd_fpm10=cd_fpm1
+          ! cd_fpm30=cd_fpm3
+          ! cd_fpm80=cd_fpm8
+          ! cd_fpm450=cd_fpm45
+          ! cd_igorbital0=cd_igorbital
           
 
           !!! Casida !!!
