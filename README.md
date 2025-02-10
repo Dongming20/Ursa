@@ -60,7 +60,7 @@ Here:
 
 -__dft__ stands for DFT simulations (!Options: dft, hf),
 
--__cd__ stands for the Contour-Deformation calculation method for the GW self-energy (Options: cd, casida, none (no GW)),
+-__casida__ stands for the Fully analytic method by solving the Casida equation for the GW self-energy (Options: casida, none (no GW)),
 
 -__p2__ stands for P2-FEM real-space mesh discretization (p3 is also available for higher accuracy). We note that running G0W0 with p2 provides good enough results for the HOMO energies.
 
