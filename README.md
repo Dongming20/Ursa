@@ -166,7 +166,7 @@ Many information will be displayed on screen during the G0W0 calculations. Here 
  -----  Orbital,  E_x (eV) -----
            1  -10.0464411301152     
            2  -2.78711709532976     
- -----  Orbital,      E_c (eV) -----
+ -----  Orbital,  E_c (eV) -----
            1  -1.45749534325477     
            2 -0.658949133802951     
  ==============================================
