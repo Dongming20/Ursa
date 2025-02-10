@@ -2,7 +2,7 @@
 
 Release version: 1.0
 
-URSA is an electronic structure code that uses a real-space Finite Element Method (FEM) discretization to perform GW approximation calculations using all-electron ground-state DFT or Hartree-Fock as the starting points. The code is taking advantage of the state-of-the-art FEAST [1,2] as the non-linear eigenvalue solver for the GW quasiparticle equations [3]. URSA is an extension of an 3D FEM legacy code - NESSIE [4]. The real space mesh is generated using the software tetgen [5]. Remark 1: Current atom database is limited to two rows of the periodic table (but it is easy to add more); Only isolated systems (non-periodic) are considered in this release (no bandsructrure calculations). Remark 2: Only graphical solution and Spectral function method of G0W0@DFT and G0W0@HF are included in this current URSA release while G0W0@DFT and G0W0@HF with non-linear eigenvalue solver will be added in the next release.
+URSA is an electronic structure code that uses a real-space Finite Element Method (FEM) discretization to perform GW approximation calculations using all-electron ground-state DFT or Hartree-Fock as the starting points. The code is taking advantage of the state-of-the-art FEAST [1,2] as the non-linear eigenvalue solver for the GW quasiparticle equations [3]. URSA is an extension of an 3D FEM legacy code - NESSIE [4]. The real space mesh is generated using the software tetgen [5]. Remark 1: Current atom database is limited to two rows of the periodic table (but it is easy to add more); Only isolated systems (non-periodic) are considered in this release (no bandsructrure calculations). Remark 2: Fully analytic method (by solving the Casida equation) of G0W0@DFT and G0W0@HF are included in this current URSA release, while non-linear eigenvalue solver for G0W0 will be added in the next release.
 
 [1] [Eric Polizzi, "Density-Matrix-Based Algorithms for Solving Eigenvalue Problems", Phys. Rev. B. Vol. 79, 115112, 2009](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.79.115112)
 
@@ -72,7 +72,7 @@ ursa_compute H2
 ```
 
 
-Many information will be displayed on screen during the G0W0 calculations. Here is the screenshot of some results. The last list of (complex) numbers are the correlation energies ($<\psi_{KS}^{HOMO}|\Sigma_c(\omega)|\psi_{KS}^{HOMO}>$) in atomic units calculated by Contour-Deformation method with 20 (N_grid=20) energy grids -- between \[Emin=-17.5 eV, Emax=2.5 eV\].
+Many information will be displayed on screen during the G0W0 calculations. Here is the screenshot of some results. The last list of (two columns) numbers are the correlation energies ($<\psi_{KS}^{HOMO}|\Sigma_c(\omega)|\psi_{KS}^{HOMO}>$) in eV calculated by Fully analytic method with 20 (N_grid=20) energy grids -- between \[Emin=-17.5 eV, Emax=-14.5 eV\] for HOMO and \[Emin=0.0 eV, Emax=2.5 eV\] for LUMO.
 
 ```bash
  Nn -        4824 Ne -        3459
@@ -89,167 +89,148 @@ Many information will be displayed on screen during the G0W0 calculations. Here 
  SCF-Cycle ----           0
  --- Energy states up to occupied + LUMO (eV) ---
            1  -13.5149078487864     
-           2 -0.473829703823659     
+           2 -0.473829703823662     
  SCF-loop residual -------   0.710946383567262     
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  SCF-Cycle ----           1
  --- Energy states up to occupied + LUMO (eV) ---
-           1  -11.7032590040045     
-           2  0.294520615075446     
- SCF-loop residual -------   0.240422824425118     
+           1  -11.4351427683472     
+           2  0.195670685870979     
+ SCF-loop residual -------   0.177896496784516     
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  SCF-Cycle ----           2
  --- Energy states up to occupied + LUMO (eV) ---
-           1  -10.0675793945623     
-           2  0.696014651915786     
- SCF-loop residual -------   5.741681215220480E-002
+           1  -10.2944669486597     
+           2  0.594910282039306     
+ SCF-loop residual -------   6.790097206182620E-003
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  SCF-Cycle ----           3
  --- Energy states up to occupied + LUMO (eV) ---
-           1  -10.4119842346510     
-           2  0.568924542027834     
- SCF-loop residual -------   8.864128718577743E-003
+           1  -10.3329210034280     
+           2  0.622038237781300     
+ SCF-loop residual -------   6.502003753860067E-003
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  SCF-Cycle ----           4
  --- Energy states up to occupied + LUMO (eV) ---
-           1  -10.4223724892283     
-           2  0.582736135007934     
- SCF-loop residual -------   2.721093419270812E-003
+           1  -10.2923983411776     
+           2  0.632749382823823     
+ SCF-loop residual -------   2.963865692976468E-004
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  SCF-Cycle ----           5
  --- Energy states up to occupied + LUMO (eV) ---
-           1  -10.4216693053465     
-           2  0.595110999481273     
- SCF-loop residual -------   5.086691923474552E-004
+           1  -10.2936424638287     
+           2  0.633297040565840     
+ SCF-loop residual -------   3.636386426032526E-005
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  SCF-Cycle ----           6
  --- Energy states up to occupied + LUMO (eV) ---
-           1  -10.4216946789234     
-           2  0.595162615603790     
- SCF-loop residual -------   3.760992403227131E-004
+           1  -10.2931752204160     
+           2  0.633800423798081     
+ SCF-loop residual -------   1.007039298800454E-005
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  SCF-Cycle ----           7
  --- Energy states up to occupied + LUMO (eV) ---
-           1  -10.4204027406174     
-           2  0.595533313433651     
- SCF-loop residual -------   9.826690430502450E-005
+           1  -10.2930595692825     
+           2  0.633863078015596     
+ SCF-loop residual -------   5.116309719771090E-006
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  SCF-Cycle ----           8
  --- Energy states up to occupied + LUMO (eV) ---
-           1  -10.4200786349540     
-           2  0.595551701010133     
- SCF-loop residual -------   4.267419464840010E-006
+           1  -10.2930988322457     
+           2  0.633845488512944     
+ SCF-loop residual -------   4.847564529970609E-007
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  SCF-Cycle ----           9
  --- Energy states up to occupied + LUMO (eV) ---
-           1  -10.4200508289930     
-           2  0.595555406533187     
- SCF-loop residual -------   2.982778552984982E-006
+           1  -10.2930955794039     
+           2  0.633847082803126     
+ SCF-loop residual -------   1.929130475050312E-008
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  SCF-Cycle ----          10
  --- Energy states up to occupied + LUMO (eV) ---
-           1  -10.4200549726954     
-           2  0.595553391471003     
- SCF-loop residual -------   1.497352175115428E-006
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- SCF-Cycle ----          11
- --- Energy states up to occupied + LUMO (eV) ---
-           1  -10.4200595676844     
-           2  0.595553259971305     
- SCF-loop residual -------   1.823926367985015E-007
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- SCF-Cycle ----          12
- --- Energy states up to occupied + LUMO (eV) ---
-           1  -10.4200600773861     
-           2  0.595553278859117     
- SCF-loop residual -------   3.078541208248705E-008
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- SCF-Cycle ----          13
- --- Energy states up to occupied + LUMO (eV) ---
-           1  -10.4200602244323     
-           2  0.595553276152077     
- SCF-loop residual -------   2.945577497462028E-009
+           1  -10.2930954080327     
+           2  0.633847174566831     
+ SCF-loop residual -------   6.692170500381725E-009
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  Ground State Convergence Reached!!!
  ==============================================
- -----  Orbital,  DFT_Ekinetic (eV) -----
-           1   15.4531746077192     
-           2   5.71143440447254     
- -----  Orbital,  DFT_Eext (eV) -----
-           1  -49.1971316953183     
-           2  -17.9081505880650     
- -----  Orbital,  DFT_Eh (eV) -----
-           1   35.2792082059234     
-           2   16.2386747820364     
- -----  Orbital,  DFT_Ex (eV) -----
-           1  -9.62703427631154     
-           2  -3.05776786301122     
- -----  Orbital,  DFT_Ec (eV) -----
-           1  -1.42748640418873     
-           2 -0.263486593096187     
- -----  Orbital,  DFT_Ex+Ec pbe_g (eV) -----
-           1 -0.900790662256304     
-           2 -0.125150866184476     
+ -----  Orbital,  E_kinetic (eV) -----
+           1   15.0097451558960     
+           2   5.80672466668347     
+ -----  Orbital,  E_ext (eV) -----
+           1  -48.6487199382248     
+           2  -18.0997647952865     
+ -----  Orbital,  E_h (eV) -----
+           1   34.8498158476662     
+           2   16.3729535323026     
+ -----  Orbital,  E_x (eV) -----
+           1  -10.0464411301152     
+           2  -2.78711709532976     
+ -----  Orbital,      E_c (eV) -----
+           1  -1.45749534325477     
+           2 -0.658949133802951     
  ==============================================
- --- solve more unoccupied states ---
- --- Energy states up to all solved unoccupied states (eV) ---
-           1  -10.4200602244323     
-           2  0.595553276149457     
-           3  0.985167452736554     
-           4   1.32807546060004     
-           5   1.38774468798066     
-           6   3.29998811274398     
-           7   3.36450136229456     
-           8   3.50035296198647     
-           9   3.71031164019140     
-          10   3.76774824910850     
-          11   3.97818611709550     
-          12   4.66779729548959     
-          13   4.72581990609421     
-          14   4.96632407222522     
-          15   5.07625849939762     
-          16   5.51121011729669     
-          17   5.61426746940361     
-          18   5.86851008576786     
-          19   5.90329068421243     
-          20   5.98535176200943     
-          21   6.16105873985066     
-          22   6.46387683357575     
-          23   6.74013755613410     
+ --- solve all unoccupied states ---
   
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  !!!!!!!!!!!!!  GW starts  !!!!!!!!!!!!!!!
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ *** allocate memory for GW calculations ***
  *** construct bare Coulomb potential -- 1/|r-r'| ***
  *** construct GW Exchange Self-energy -- Sigma_x ***
  ==============================================
  ----  Orbital,  GW <psi|Sigma_x|psi> (eV) ----
-           1  -17.7834868694120     
-           2 -0.988475335417110     
+           1  -17.5663306637352     
+           2  -1.02042477483526     
  ==============================================
- *** compute the energy grid points ***
- *** compute imaginary axis energy integral gauss nodes ***
- *** compute dynamically screened Coulomb interaction - W ***
- (2.656711212987296E-002,0.000000000000000E+000)
- (1.574689817913091E-002,0.000000000000000E+000)
- (7.197646933419861E-003,0.000000000000000E+000)
- (1.186865375138612E-004,0.000000000000000E+000)
- (-5.946502572104874E-003,0.000000000000000E+000)
- (-1.128195609957185E-002,0.000000000000000E+000)
- (-1.609014391825136E-002,0.000000000000000E+000)
- (-2.045063381777931E-002,0.000000000000000E+000)
- (-2.452695506960541E-002,0.000000000000000E+000)
- (-2.835224871320701E-002,0.000000000000000E+000)
- (-3.199462104384110E-002,0.000000000000000E+000)
- (-3.549983892163585E-002,0.000000000000000E+000)
- (-3.890686250391783E-002,0.000000000000000E+000)
- (-4.225053643746908E-002,0.000000000000000E+000)
- (-4.556216099315275E-002,0.000000000000000E+000)
- (-4.887139935935044E-002,0.000000000000000E+000)
- (-5.220801981582089E-002,0.000000000000000E+000)
- (-5.578439578417040E-002,0.000000000000000E+000)
- (-5.916480901781986E-002,0.000000000000000E+000)
- (-6.271383117651150E-002,0.000000000000000E+000)
+ *** compute Casida Kx ***
+ *** construct Casida matrix  ***
+ *** solve Casida eigenvalue equation  ***
+ ==========
+ *** solve orbital           1  -- Sigma_c  ***
+   energy grid (eV)     GW <psi|Sigma_c|psi> (eV)
+  -17.5000000000000       0.795134657964793     
+  -17.3421052631579       0.746329188026123     
+  -17.1842105263158       0.699661558938012     
+  -17.0263157894737       0.654957921809014     
+  -16.8684210526316       0.612063702384820     
+  -16.7105263157895       0.570840922989502     
+  -16.5526315789474       0.531165964880904     
+  -16.3947368421053       0.492927688186589     
+  -16.2368421052632       0.456025843991710     
+  -16.0789473684211       0.420369726538108     
+  -15.9210526315789       0.385877023869741     
+  -15.7631578947368       0.352472833359203     
+  -15.6052631578947       0.320088814915959     
+  -15.4473684210526       0.288662459712073     
+  -15.2894736842105       0.258136456268683     
+  -15.1315789473684       0.228458138954174     
+  -14.9736842105263       0.199579006526933     
+  -14.8157894736842       0.171454300444745     
+  -14.6578947368421       0.144042634361712     
+  -14.5000000000000       0.117305667621887     
+ *** solve orbital           2  -- Sigma_c  ***
+   energy grid (eV)     GW <psi|Sigma_c|psi> (eV)
+  0.000000000000000E+000 -0.356979656590720     
+  0.131578947368421      -0.359686901821617     
+  0.263157894736842      -0.362412408906082     
+  0.394736842105263      -0.365156757304678     
+  0.526315789473684      -0.367920541310062     
+  0.657894736842105      -0.370704370802304     
+  0.789473684210526      -0.373508872044030     
+  0.921052631578947      -0.376334688518317     
+   1.05263157894737      -0.379182481812475     
+   1.18421052631579      -0.382052932551066     
+   1.31578947368421      -0.384946741381866     
+   1.44736842105263      -0.387864630018730     
+   1.57894736842105      -0.390807342345682     
+   1.71052631578947      -0.393775645586945     
+   1.84210526315789      -0.396770331548027     
+   1.97368421052632      -0.399792217933446     
+   2.10526315789474      -0.402842149747167     
+   2.23684210526316      -0.405921000782431     
+   2.36842105263158      -0.409029675208256     
+   2.50000000000000      -0.412169109260568
 ```
 
 Eigenvectors are all saved in output files. The code is also generating a mesh point .vtk file that can be used for plotting the ground state density and potential.
